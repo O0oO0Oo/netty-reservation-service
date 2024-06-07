@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 public class NettySimpleUrlHandlerMapping<T extends MethodHandler> extends AbstractNettyUrlHandlerMapping {
     private final MethodHandlerFactory<T> handlerFactor;
@@ -16,7 +17,7 @@ public class NettySimpleUrlHandlerMapping<T extends MethodHandler> extends Abstr
     protected void doRegisterHandlers(Object bean) {
         Class<?> controllerClazz = bean.getClass();
         RequestMapping requestMapping = controllerClazz.getAnnotation(RequestMapping.class);
-        String[] requestMappingPaths = requestMapping.value();
+        String[] requestMappingPaths = getRequestMappingValue(requestMapping);
 
         for (Method method : controllerClazz.getMethods()) {
             T handler = handlerFactor.createHandler();
@@ -41,6 +42,15 @@ public class NettySimpleUrlHandlerMapping<T extends MethodHandler> extends Abstr
                     getHandlerMap().put("/" + httpMethod + normalizePath(methodMappingPath), handler);
                 }
             }
+        }
+    }
+
+    private String[] getRequestMappingValue(RequestMapping requestMapping) {
+        if(Objects.isNull(requestMapping)) {
+            return new String[]{};
+        }
+        else {
+            return requestMapping.value();
         }
     }
 
