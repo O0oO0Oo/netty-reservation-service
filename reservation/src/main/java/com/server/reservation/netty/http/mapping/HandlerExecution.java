@@ -84,7 +84,7 @@ public class HandlerExecution {
         String convertToOrigin;
         if (convert instanceof Float || convert instanceof Double){
             // 15 자리까지 지원
-            convertToOrigin = String.valueOf(decimalFormat.format(convert));
+            convertToOrigin = decimalFormat.format(convert);
         }
         else{
             convertToOrigin = String.valueOf(convert);
