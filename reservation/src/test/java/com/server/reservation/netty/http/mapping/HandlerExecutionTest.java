@@ -71,7 +71,7 @@ class HandlerExecutionTest {
 
         // When
         Object handler1 = handlerMapping.getHandler(request1);
-        HandlerExecution handler2 = (HandlerExecution) handlerMapping.getHandler(request2);
+        HandlerExecution handler2 = handlerMapping.getHandler(request2);
 
         // Then
         Assertions.assertNull(handler1);
