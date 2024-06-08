@@ -1,5 +1,6 @@
 package com.server.reservation.business.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.server.reservation.reservableitem.entity.ReservableItem;
 import com.server.reservation.reservationrecord.entity.ReservationRecord;
 import jakarta.persistence.*;
@@ -20,16 +21,18 @@ public class Business {
     @Column(name = "business_id", nullable = false)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private BusinessType businessType;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "business")
     private List<ReservableItem> reservableItems;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "business")
     private List<ReservationRecord> reservationRecords;
 
