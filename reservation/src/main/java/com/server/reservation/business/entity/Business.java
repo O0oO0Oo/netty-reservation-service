@@ -25,7 +25,7 @@ public class Business {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private BuissnessType buissnessType;
+    private BusinessType businessType;
 
     @OneToMany(mappedBy = "business")
     private List<ReservableItem> reservableItems;
@@ -34,8 +34,8 @@ public class Business {
     private List<ReservationRecord> reservationRecords;
 
     @Builder
-    public Business(String name, BuissnessType buissnessType) {
+    public Business(String name, BusinessType businessType) {
         this.name = name;
-        this.buissnessType = buissnessType;
+        this.businessType = businessType;
     }
 }
