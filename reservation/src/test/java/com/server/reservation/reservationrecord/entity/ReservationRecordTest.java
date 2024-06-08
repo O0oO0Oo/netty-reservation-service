@@ -3,7 +3,7 @@ package com.server.reservation.reservationrecord.entity;
 import com.server.reservation.reservableitem.entity.ReservableItem;
 import com.server.reservation.reservableitem.repository.ReservableItemRepository;
 import com.server.reservation.reservationrecord.repository.ReservationRecordRepository;
-import com.server.reservation.business.entity.BuissnessType;
+import com.server.reservation.business.entity.BusinessType;
 import com.server.reservation.business.entity.Business;
 import com.server.reservation.business.repository.BusinessRepository;
 import com.server.reservation.user.entity.User;
@@ -45,7 +45,7 @@ class ReservationRecordTest {
         userRepository.save(user);
 
         business = Business.builder()
-                .buissnessType(BuissnessType.ACCOMMODATION)
+                .businessType(BusinessType.ACCOMMODATION)
                 .name("hotel test")
                 .build();
         businessRepository.save(business);
