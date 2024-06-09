@@ -1,5 +1,6 @@
 package com.server.reservation.common.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -15,10 +16,12 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class BaseTimeEntity {
 
+    @JsonIgnore
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdTime;
 
+    @JsonIgnore
     @LastModifiedDate
     private LocalDateTime lastModifiedTime;
 }

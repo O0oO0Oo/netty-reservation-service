@@ -1,7 +1,7 @@
 package com.server.reservation.netty.http.handler;
 
 import com.server.reservation.common.config.SpringApplicationContext;
-import com.server.reservation.common.response.FullHttpResponseBuilder;
+import com.server.reservation.common.dto.FullHttpResponseBuilder;
 import com.server.reservation.netty.http.mapping.HandlerExecution;
 import com.server.reservation.netty.http.mapping.NettyHandlerMapping;
 import io.netty.channel.ChannelHandler;
