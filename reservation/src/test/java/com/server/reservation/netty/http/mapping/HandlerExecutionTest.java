@@ -1,5 +1,6 @@
 package com.server.reservation.netty.http.mapping;
 
+import com.server.reservation.common.exception.CustomException;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
@@ -71,11 +72,11 @@ class HandlerExecutionTest {
 
         // When
         Object handler1 = handlerMapping.getHandler(request1);
-        HandlerExecution handler2 = (HandlerExecution) handlerMapping.getHandler(request2);
+        HandlerExecution handler2 = handlerMapping.getHandler(request2);
 
         // Then
         Assertions.assertNull(handler1);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> handler2.execute());
+        Assertions.assertThrows(CustomException.class, () -> handler2.execute());
     }
 
     @Test

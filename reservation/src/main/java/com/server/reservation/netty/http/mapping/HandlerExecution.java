@@ -2,6 +2,9 @@ package com.server.reservation.netty.http.mapping;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.reservation.common.config.ObjectMapperWithValidation;
+import com.server.reservation.common.exception.CustomException;
+import com.server.reservation.common.exception.ErrorCode;
 import lombok.Builder;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,10 +15,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class HandlerExecution {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = ObjectMapperWithValidation.getObjectMapperWithValidation();
 
     // Non-Threadsafe
     private final DecimalFormat decimalFormat = new DecimalFormat("0.###############");
@@ -48,7 +54,7 @@ public class HandlerExecution {
      * @return {arg1, arg2 ...}
      * @throws JsonProcessingException Json to Object 변환 실패
      */
-    private Object[] parameterConvert() throws JsonProcessingException {
+    private Object[] parameterConvert() {
         Method method = handler.getMethod();
         List<Object> args = new ArrayList<>(method.getParameterCount());
 
@@ -60,18 +66,14 @@ public class HandlerExecution {
                     uriTemplateVariables.computeIfPresent(
                             pathVar,
                             (k, v) -> {
-                                Object convert = ConvertUtils.convert(v, parameter.getType());
-
-                                isValidConvertOrElseThrow(v, convert);
-
+                                Object convert = convertOrElseThrow(v, parameter.getType());
                                 args.add(convert);
                                 return v;
                             }
                     );
                 }
                 else if (annotation instanceof RequestBody) {
-                    // TODO : Exception -> JsonProcessingException
-                    Object readValue = objectMapper.readValue(bodyString, parameter.getType());
+                    Object readValue = readValueOrElseThrow(parameter.getType());
                     args.add(readValue);
                 }
             }
@@ -80,19 +82,30 @@ public class HandlerExecution {
         return args.isEmpty() ? null : args.toArray();
     }
 
-    private void isValidConvertOrElseThrow(String origin, Object convert) {
+    private Object readValueOrElseThrow(Class<?> type) {
+        try{
+            return objectMapper.readValue(bodyString, type);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(ErrorCode.INVALID_JSON);
+        }
+    }
+
+    private Object convertOrElseThrow(String origin, Class<?> type) {
+        Object convert = ConvertUtils.convert(origin, type);
+
         String convertToOrigin;
         if (convert instanceof Float || convert instanceof Double){
             // 15 자리까지 지원
-            convertToOrigin = String.valueOf(decimalFormat.format(convert));
+            convertToOrigin = decimalFormat.format(convert);
         }
         else{
             convertToOrigin = String.valueOf(convert);
         }
 
         if (!origin.equals(convertToOrigin)) {
-            // TODO : Exception -> PathParameter IllegalArgument
-            throw new IllegalArgumentException();
+            throw new CustomException(ErrorCode.BAD_REQUEST_PATH_VARIABLE);
         }
+
+        return convert;
     }
 }

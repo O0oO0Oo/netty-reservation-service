@@ -1,41 +1,47 @@
 package com.server.reservation.business.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.server.reservation.reservableitem.entity.ReservableItem;
 import com.server.reservation.reservationrecord.entity.ReservationRecord;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Immutable;
+import lombok.Setter;
 
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
-@Immutable // An immutable entity need not be dirty-checked, and so Hibernate does not need to maintain a snapshot of its state. This may help reduce memory allocation
 public class Business {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "business_id", nullable = false)
+    @JsonProperty("businessId")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Setter
+    @Column(nullable = false)
     private String name;
 
+    @Setter
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private BuissnessType buissnessType;
+    private BusinessType businessType;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "business")
     private List<ReservableItem> reservableItems;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "business")
     private List<ReservationRecord> reservationRecords;
 
     @Builder
-    public Business(String name, BuissnessType buissnessType) {
+    public Business(String name, BusinessType businessType) {
         this.name = name;
-        this.buissnessType = buissnessType;
+        this.businessType = businessType;
     }
 }

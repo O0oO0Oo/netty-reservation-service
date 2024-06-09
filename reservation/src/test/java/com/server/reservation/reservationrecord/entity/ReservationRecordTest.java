@@ -3,7 +3,7 @@ package com.server.reservation.reservationrecord.entity;
 import com.server.reservation.reservableitem.entity.ReservableItem;
 import com.server.reservation.reservableitem.repository.ReservableItemRepository;
 import com.server.reservation.reservationrecord.repository.ReservationRecordRepository;
-import com.server.reservation.business.entity.BuissnessType;
+import com.server.reservation.business.entity.BusinessType;
 import com.server.reservation.business.entity.Business;
 import com.server.reservation.business.repository.BusinessRepository;
 import com.server.reservation.user.entity.User;
@@ -34,7 +34,7 @@ class ReservationRecordTest {
     User user;
     Business business;
     ReservableItem reservableItem;
-    int initialItemQuantity = 100;
+    long initialItemQuantity = 100;
 
     @BeforeEach
     void beforeEach() {
@@ -45,14 +45,14 @@ class ReservationRecordTest {
         userRepository.save(user);
 
         business = Business.builder()
-                .buissnessType(BuissnessType.ACCOMMODATION)
+                .businessType(BusinessType.ACCOMMODATION)
                 .name("hotel test")
                 .build();
         businessRepository.save(business);
 
         reservableItem = ReservableItem.builder()
                 .business(business)
-                .maxQuantityPerUser(3)
+                .maxQuantityPerUser(3L)
                 .price(1000L)
                 .quantity(initialItemQuantity)
                 .name("test Item")
@@ -64,7 +64,7 @@ class ReservationRecordTest {
     @DisplayName("save - Reservation Record")
     public void givenEntity_whenSave_thenSaveEqualRecord(){
         // Given
-        int buyQuantity = 5;
+        long buyQuantity = 5;
         ReservationRecord record = ReservationRecord.builder()
                 .reservationRecordStatus(ReservationRecordStatus.RESERVED)
                 .quantity(buyQuantity)

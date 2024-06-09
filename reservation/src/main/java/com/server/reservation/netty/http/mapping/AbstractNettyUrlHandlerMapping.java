@@ -1,11 +1,14 @@
 package com.server.reservation.netty.http.mapping;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.handler.codec.http.FullHttpRequest;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
 import java.lang.annotation.Annotation;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -30,6 +33,7 @@ public abstract class AbstractNettyUrlHandlerMapping extends AbstractNettyHandle
     protected HandlerExecution lookupHandler(String path, FullHttpRequest request) {
         MethodHandler methodHandler = getDirectMatch(path, request);
         if (methodHandler != null) {
+            // 바로 매칭된다면 path parameter 가 없는것.
             return buildHandlerExecution(methodHandler, request);
         }
 
@@ -91,14 +95,14 @@ public abstract class AbstractNettyUrlHandlerMapping extends AbstractNettyHandle
         return HandlerExecution.builder()
                 .handler(methodHandler)
                 .uriTemplateVariables(uriTemplateVariables)
-                .bodyString(request.content().toString())
+                .bodyString(request.content().toString(StandardCharsets.UTF_8))
                 .build();
     }
 
     private HandlerExecution buildHandlerExecution(MethodHandler methodHandler, FullHttpRequest request) {
         return HandlerExecution.builder()
                 .handler(methodHandler)
-                .bodyString(request.content().toString())
+                .bodyString(request.content().toString(StandardCharsets.UTF_8))
                 .build();
     }
 

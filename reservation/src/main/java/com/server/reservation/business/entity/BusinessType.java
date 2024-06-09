@@ -1,6 +1,6 @@
 package com.server.reservation.business.entity;
 
-public enum BuissnessType {
+public enum BusinessType {
     ACCOMMODATION,
     RESTAURANT,
     STORE
