@@ -34,7 +34,7 @@ class ReservationRecordTest {
     User user;
     Business business;
     ReservableItem reservableItem;
-    int initialItemQuantity = 100;
+    long initialItemQuantity = 100;
 
     @BeforeEach
     void beforeEach() {
@@ -52,7 +52,7 @@ class ReservationRecordTest {
 
         reservableItem = ReservableItem.builder()
                 .business(business)
-                .maxQuantityPerUser(3)
+                .maxQuantityPerUser(3L)
                 .price(1000L)
                 .quantity(initialItemQuantity)
                 .name("test Item")
@@ -64,7 +64,7 @@ class ReservationRecordTest {
     @DisplayName("save - Reservation Record")
     public void givenEntity_whenSave_thenSaveEqualRecord(){
         // Given
-        int buyQuantity = 5;
+        long buyQuantity = 5;
         ReservationRecord record = ReservationRecord.builder()
                 .reservationRecordStatus(ReservationRecordStatus.RESERVED)
                 .quantity(buyQuantity)
