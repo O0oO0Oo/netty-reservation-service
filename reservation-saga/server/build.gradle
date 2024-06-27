@@ -1,0 +1,9 @@
+dependencies {
+    implementation project(":core")
+    implementation project(":business")
+    implementation project(":item")
+    implementation project(":record")
+    implementation project(":user")
+
+    implementation "commons-beanutils:commons-beanutils:1.9.4"
+}
