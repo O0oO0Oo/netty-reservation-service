@@ -1,3 +1,0 @@
-org.server.reservation.saga.promise.strategy.InitialSagaPromiseCreationStrategy
-org.server.reservation.saga.promise.strategy.DefaultSagaPromiseCreationStrategy
-org.server.reservation.saga.promise.strategy.CompensableSagaPromiseCreationStrategy

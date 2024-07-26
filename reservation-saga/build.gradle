@@ -15,7 +15,7 @@ buildscript {
 }
 
 allprojects {
-	group 'org.server.reservation'
+	group 'org.server.rsaga'
 	version "1.0-SANPSHOT"
 
 	repositories {

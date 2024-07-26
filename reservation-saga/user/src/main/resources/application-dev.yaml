@@ -1,4 +1,4 @@
-spring.application.name: reservation.user
+spring.application.name: rsaga.user
 
 spring:
   datasource:
