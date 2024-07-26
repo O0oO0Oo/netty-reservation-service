@@ -1,0 +1,2 @@
+rootProject.name = 'reservation-saga'
+include 'core', 'user', 'business', 'item', 'record', 'server', 'saga-orchestrator'
