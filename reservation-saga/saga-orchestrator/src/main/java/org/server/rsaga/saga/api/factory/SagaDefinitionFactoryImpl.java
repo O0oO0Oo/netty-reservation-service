@@ -1,7 +1,6 @@
 package org.server.rsaga.saga.api.factory;
 
 import com.google.common.base.Preconditions;
-import kotlin.jvm.functions.Function2;
 import org.server.rsaga.saga.api.SagaDefinition;
 import org.server.rsaga.saga.api.impl.DefaultSagaDefinition;
 import org.server.rsaga.saga.message.MessageProducer;
@@ -14,6 +13,7 @@ import org.server.rsaga.saga.step.impl.SingleSagaStep;
 import org.server.rsaga.saga.step.impl.StepType;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class SagaDefinitionFactoryImpl<I> {
@@ -43,7 +43,7 @@ public class SagaDefinitionFactoryImpl<I> {
         sagaStepMap.get(INIT_STEP_ID).put(StepType.INITIAL, null);
     }
 
-    public <R> SagaDefinitionFactoryImpl<I> addStep(String stepName, String destination, Function2<Integer, List<SagaMessage<I>>, SagaMessage<R>> operation, MessageProducer<R> messageProducer, StepType stepType, String... dependencies) {
+    public <R> SagaDefinitionFactoryImpl<I> addStep(String stepName, String destination, BiFunction<Integer, List<SagaMessage<I>>, SagaMessage<R>> operation, MessageProducer<R> messageProducer, StepType stepType, String... dependencies) {
         Integer existStepId = getExistStepId(stepName);
         int currentStepId = (existStepId != null) ? existStepId : stepId;
 
@@ -68,7 +68,7 @@ public class SagaDefinitionFactoryImpl<I> {
         return this;
     }
 
-    public <R> SagaDefinitionFactoryImpl<I> addStep(String stepName, String destination, Function2<Integer, SagaMessage<I>, SagaMessage<R>> operation, MessageProducer<R> messageProducer, StepType stepType, String dependency) {
+    public <R> SagaDefinitionFactoryImpl<I> addStep(String stepName, String destination, BiFunction<Integer, SagaMessage<I>, SagaMessage<R>> operation, MessageProducer<R> messageProducer, StepType stepType, String dependency) {
         Integer existStepId = getExistStepId(stepName);
         int currentStepId = (existStepId != null) ? existStepId : stepId;
 
@@ -91,7 +91,7 @@ public class SagaDefinitionFactoryImpl<I> {
         return this;
     }
 
-    public <R> SagaDefinitionFactoryImpl<I> addStep(String stepName, String destination, Function2<Integer, SagaMessage<I>, SagaMessage<R>> operation, MessageProducer<R> messageProducer, StepType stepType) {
+    public <R> SagaDefinitionFactoryImpl<I> addStep(String stepName, String destination, BiFunction<Integer, SagaMessage<I>, SagaMessage<R>> operation, MessageProducer<R> messageProducer, StepType stepType) {
         Integer existStepId = getExistStepId(stepName);
         int currentStepId = (existStepId != null) ? existStepId : stepId;
 

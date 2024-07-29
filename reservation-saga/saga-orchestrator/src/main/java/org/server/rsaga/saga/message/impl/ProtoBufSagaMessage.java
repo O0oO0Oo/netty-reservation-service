@@ -3,14 +3,17 @@ package org.server.rsaga.saga.message.impl;
 import org.server.rsaga.saga.message.Key;
 import org.server.rsaga.saga.message.SagaMessage;
 
-public class ProtoBufSagaMessage<T extends com.google.protobuf.Message> implements SagaMessage<T> {
+public final class ProtoBufSagaMessage<T> implements SagaMessage<T> {
     private final Key correlationId;
+    private final int stepId;
     private final T payload;
 
-    public ProtoBufSagaMessage(Key correlationId, T payload) {
+    public ProtoBufSagaMessage(Key correlationId, int stepId, T payload) {
         this.correlationId = correlationId;
+        this.stepId = stepId;
         this.payload = payload;
     }
+
 
     @Override
     public Key getCorrelationId() {
@@ -19,7 +22,7 @@ public class ProtoBufSagaMessage<T extends com.google.protobuf.Message> implemen
 
     @Override
     public int getStepId() {
-        return 0;
+        return this.stepId;
     }
 
     @Override

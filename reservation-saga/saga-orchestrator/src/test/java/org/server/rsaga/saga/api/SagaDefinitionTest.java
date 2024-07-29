@@ -2,7 +2,6 @@ package org.server.rsaga.saga.api;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import kotlin.jvm.functions.Function2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -98,13 +98,13 @@ class SagaDefinitionTest {
             lock.put(i, new CountDownLatch(1));
         }
 
-        Function2<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = (id, message) -> {
+        BiFunction<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = (id, message) -> {
             isExecuted.put(id, true);
             lock.get(id).countDown();
             return message;
         };
 
-        Function2<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation = (id, messages) -> {
+        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation = (id, messages) -> {
             isExecuted.put(id, true);
             lock.get(id).countDown();
             return messages.get(0);
@@ -206,20 +206,20 @@ class SagaDefinitionTest {
         AtomicInteger executedCount = new AtomicInteger();
         AtomicInteger isCompensated = new AtomicInteger(0);
 
-        Function2<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = (id, message) -> {
+        BiFunction<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = (id, message) -> {
             executedCount.incrementAndGet();
             lock.get(id).countDown();
             return message;
         };
 
-        Function2<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> step3ExecuteOperation = (id, messages) -> {
+        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> step3ExecuteOperation = (id, messages) -> {
             isCompensated.incrementAndGet();
             executedCount.incrementAndGet();
             lock.get(id).countDown();
             return messages.get(0);
         };
 
-        Function2<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> step3CompensateOperation = (id, messages) -> {
+        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> step3CompensateOperation = (id, messages) -> {
             isCompensated.decrementAndGet();
             executedCount.incrementAndGet();
             return messages.get(0);
@@ -302,13 +302,13 @@ class SagaDefinitionTest {
             lock.put(i, new CountDownLatch(1));
         }
 
-        Function2<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = (id, message) -> {
+        BiFunction<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = (id, message) -> {
             executeCount.incrementAndGet();
             lock.get(id).countDown();
             return message;
         };
 
-        Function2<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation = (id, messages) -> {
+        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation = (id, messages) -> {
             executeCount.incrementAndGet();
             lock.get(id).countDown();
             return messages.get(0);

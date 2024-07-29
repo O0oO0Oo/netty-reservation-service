@@ -1,7 +1,6 @@
 package org.server.rsaga.saga.api.factory;
 
 
-import kotlin.jvm.functions.Function2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +18,7 @@ import org.server.rsaga.saga.step.impl.SingleSagaStep;
 import org.server.rsaga.saga.step.impl.StepType;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,9 +64,9 @@ class SagaDefinitionFactoryImplTest {
     void should_sagaDefinitionCreated_when_validStepsAndOrder() {
         // given
         @SuppressWarnings("unchecked")
-        Function2<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.spy(Function2.class);
+        BiFunction<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.spy(BiFunction.class);
         @SuppressWarnings("unchecked")
-        Function2<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation = Mockito.mock(Function2.class);
+        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation = Mockito.mock(BiFunction.class);
 
         SingleSagaStep<Integer, Integer> step1 = new SingleSagaStep<>(1, "none", operation, messageProducer, StepType.EXECUTE);
         SingleSagaStep<Integer, Integer> step2 = new SingleSagaStep<>(2, "none", operation, messageProducer, StepType.EXECUTE);
@@ -159,9 +159,9 @@ class SagaDefinitionFactoryImplTest {
     void should_fail_when_stepsOutOfOrder() {
         // given
         @SuppressWarnings("unchecked")
-        Function2<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.mock(Function2.class);
+        BiFunction<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.mock(BiFunction.class);
         @SuppressWarnings("unchecked")
-        Function2<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation =  Mockito.mock(Function2.class);
+        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation =  Mockito.mock(BiFunction.class);
 
         // when
         sagaDefinitionFactory
@@ -185,9 +185,9 @@ class SagaDefinitionFactoryImplTest {
     void should_fail_when_addIdenticalNameAndTypeSteps() {
         // given
         @SuppressWarnings("unchecked")
-        Function2<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.mock(Function2.class);
+        BiFunction<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.mock(BiFunction.class);
         @SuppressWarnings("unchecked")
-        Function2<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation =  Mockito.mock(Function2.class);
+        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation =  Mockito.mock(BiFunction.class);
 
 
         // when
@@ -226,9 +226,9 @@ class SagaDefinitionFactoryImplTest {
     void should_sagaDefinitionCreated_when_addNonExecuteStepAfterValidExecuteSteps() {
         // given
         @SuppressWarnings("unchecked")
-        Function2<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.mock(Function2.class);
+        BiFunction<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.mock(BiFunction.class);
         @SuppressWarnings("unchecked")
-        Function2<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation =  Mockito.mock(Function2.class);
+        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation =  Mockito.mock(BiFunction.class);
 
         SingleSagaStep<Integer, Integer> step1 = new SingleSagaStep<>(1, "none", operation, messageProducer, StepType.EXECUTE);
         SingleSagaStep<Integer, Integer> step2 = new SingleSagaStep<>(2, "none", operation, messageProducer, StepType.EXECUTE);
