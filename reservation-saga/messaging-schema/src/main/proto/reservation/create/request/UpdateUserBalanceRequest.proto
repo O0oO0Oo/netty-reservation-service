@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package org.server.rsaga.user;
+
+message UpdateUserBalanceRequest {
+  int64 userId = 1;
+  int64 amount = 2;
+}

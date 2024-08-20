@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package org.server.rsaga.reservation;
+
+import "reservation/domain/ReservationStatus.proto";
+
+message CreateReservationFinalRequest {
+  int64 reservationId = 1;
+}

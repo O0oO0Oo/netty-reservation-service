@@ -1,49 +1,9 @@
-plugins{
-    id 'com.google.protobuf' version '0.8.17'
-}
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
+    api project(":messaging-core")
     implementation "commons-beanutils:commons-beanutils:1.9.4"
     implementation 'com.google.guava:guava:33.2.1-jre'
-
-    implementation 'com.google.protobuf:protobuf-java:4.26.0'
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.20"
 }
 
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.19.4"
-    }
-
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                remove java
-                java {
-                    option 'lite'
-                }
-            }
-        }
-    }
-}
-
-sourceSets {
-    main {
-        proto {
-            srcDir "${project(':saga-orchestrator').projectDir}/src/main/proto"
-            include "**/${project.name}/*.proto"
-        }
-        java{
-            srcDirs 'src/main/java', 'build/generated/source/proto/main/java'
-        }
-    }
-}
-
-tasks.withType(Copy).configureEach {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+tasks.named('bootJar') {
+    enabled = false
 }

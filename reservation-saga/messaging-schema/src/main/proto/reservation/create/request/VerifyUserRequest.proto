@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package org.server.rsaga.user;
+
+// user id 검증
+message VerifyUserRequest{
+  int64 userId = 1;
+}

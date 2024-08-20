@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package org.server.rsaga.reservation;
+
+// Reservation 요청 시작
+import "reservation/create/request/CreateReservationInitRequest.proto";
+
+// Business 검증
+import "reservation/create/request/VerifyBusinessRequest.proto";
+import "reservation/create/response/VerifyBusinessResponse.proto";
+
+// Reservable Item 검증
+import "reservation/create/request/VerifyReservableItemRequest.proto";
+import "reservation/create/response/VerifyReservableItemResponse.proto";
+
+// User 검증
+import "reservation/create/request/VerifyUserRequest.proto";
+import "reservation/create/response/VerifyUserResponse.proto";
+
+// 이전 Reservation 기록 검증
+import "reservation/create/request/CheckReservationLimitRequest.proto";
+import "reservation/create/response/CheckReservationLimitResponse.proto";
+
+// Reservable Item 재고 증감
+import "reservation/create/request/UpdateReservableItemQuantityRequest.proto";
+import "reservation/create/response/UpdateReservableItemQuantityResponse.proto";
+
+// User 잔액 증감
+import "reservation/create/request/UpdateUserBalanceRequest.proto";
+import "reservation/create/response/UpdateUserBalanceResponse.proto";
+
+// Reservation 요청 마지막
+import "reservation/create/request/CreateReservationFinalRequest.proto";
+import "reservation/create/response/CreateReservationFinalResponse.proto";
+
+message CreateReservationEvent{
+  oneof EventType {
+    org.server.rsaga.reservation.CreateReservationInitRequest createReservationInit = 2;
+
+    org.server.rsaga.business.VerifyBusinessRequest verifyBusiness = 3;
+    org.server.rsaga.business.VerifyBusinessResponse verifiedBusiness = 4;
+
+    org.server.rsaga.reservableitem.VerifyReservableItemRequest verifyReservableItem = 5;
+    org.server.rsaga.reservableitem.VerifyReservableItemResponse verifiedReservableItem = 6;
+
+    org.server.rsaga.user.VerifyUserRequest verifyUser = 7;
+    org.server.rsaga.user.VerifyUserResponse verifiedUser = 8;
+
+    org.server.rsaga.reservation.CheckReservationLimitRequest checkReservation = 9;
+    org.server.rsaga.reservation.CheckReservationLimitResponse checkedReservation = 10;
+
+    org.server.rsaga.reservableitem.UpdateReservableItemQuantityRequest updateReservableItemQuantity = 11;
+    org.server.rsaga.reservableitem.UpdateReservableItemQuantityResponse updatedReservableItemQuantity = 12;
+
+    org.server.rsaga.user.UpdateUserBalanceRequest updateUserBalance = 13;
+    org.server.rsaga.user.UpdateUserBalanceResponse updatedUserBalance = 14;
+
+    org.server.rsaga.reservation.CreateReservationFinalRequest createReservationFinal = 15;
+    org.server.rsaga.reservation.CreateReservationFinalResponse createdReservationFinal = 16;
+  }
+}

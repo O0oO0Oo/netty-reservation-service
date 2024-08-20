@@ -1,6 +1,0 @@
-dependencies {
-    implementation 'org.springframework.kafka:spring-kafka'
-    testImplementation 'org.springframework.kafka:spring-kafka-test'
-
-    implementation "commons-beanutils:commons-beanutils:1.9.4"
-}

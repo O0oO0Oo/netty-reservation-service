@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package org.server.rsaga.reservation;
+
+message CheckReservationLimitResponse {
+  int64 reservationId = 1;
+}

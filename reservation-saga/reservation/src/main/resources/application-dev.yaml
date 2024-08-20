@@ -1,0 +1,23 @@
+spring.application.name: rsaga.reservation
+
+spring:
+  datasource:
+    url: jdbc:mysql://192.168.35.179:3306/reservation-saga
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: master
+    password: master
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+logging:
+  level:
+    org.springframework.transaction: DEBUG
+    org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+#    org.springframework.jdbc.datasource.DataSourceTransactionManager: DEBUG
+
+kafka:
+  bootstrap-servers: "192.168.35.5:9092,192.168.35.5:9093,192.168.35.5:9094"
+  schema-registry-url: "http://192.168.35.5:8081"

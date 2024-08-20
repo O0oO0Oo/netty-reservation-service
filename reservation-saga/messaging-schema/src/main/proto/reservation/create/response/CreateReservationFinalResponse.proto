@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package org.server.rsaga.reservation;
+
+message CreateReservationFinalResponse {
+  int64 reservationId = 1;
+  int64 businessId = 2;
+  int64 userId = 3;
+  int64 reservableItemId = 4;
+  int64 reservableTimeId = 5;
+  int64 quantity = 6;
+}
