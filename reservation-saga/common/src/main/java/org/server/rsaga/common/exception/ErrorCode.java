@@ -9,7 +9,7 @@ public enum  ErrorCode {
     BAD_REQUEST_BODY(HttpResponseStatus.BAD_REQUEST, "C001", "잘못된 요청입니다. 다음을 확인하세요"),
     BAD_REQUEST_PATH_VARIABLE(HttpResponseStatus.BAD_REQUEST, "C002", "잘못된 요청입니다. Path Parameter 를 확인하세요"),
     INVALID_JSON(HttpResponseStatus.BAD_REQUEST, "C003", "잘못된 요청입니다. Json 형식을 확인하세요."),
-
+    
 
     // Business
     BUSINESS_NOT_FOUND(HttpResponseStatus.NOT_FOUND, "B001", "회사를 찾을 수 없습니다."),
@@ -21,13 +21,14 @@ public enum  ErrorCode {
 
 
     // Reservable item
-    ITEM_NOT_FOUND(HttpResponseStatus.NOT_FOUND, "I001", "상품을 찾을 수 없습니다."),
+    RESERVABLE_ITEM_NOT_FOUND(HttpResponseStatus.NOT_FOUND, "I001", "상품을 찾을 수 없습니다."),
     RESERVATION_DATE_LATER_TODAY(HttpResponseStatus.BAD_REQUEST, "I002", "예약날은 현재 날짜 이후여야 합니다."),
-    ITEM_IS_NOT_AVAILABLE(HttpResponseStatus.BAD_REQUEST, "I003", "종료되어 변경 불가능한 상품 입니다."),
+    RESERVABLE_ITEM_IS_NOT_AVAILABLE(HttpResponseStatus.BAD_REQUEST, "I003", "종료된 상품 입니다."),
+    REGISTER_RESERVABLE_ITEM_FAILED(HttpResponseStatus.INTERNAL_SERVER_ERROR, "I004", "상품 등록에 실패했습니다."),
 
 
-    // Reservation record
-    RESERVATION_RECORD_NOT_FOUND(HttpResponseStatus.NOT_FOUND, "R001", "기록을 찾을 수 없습니다."),
+    // Reservation
+    RESERVATION_NOT_FOUND(HttpResponseStatus.NOT_FOUND, "R001", "기록을 찾을 수 없습니다."),
     QUANTITY_INSUFFICIENT(HttpResponseStatus.BAD_REQUEST, "R002", "남은 수량이 부족합니다."),
     ALREADY_CANCELED_OR_COMPLETED(HttpResponseStatus.BAD_REQUEST, "R003", "이미 취소된 예약 입니다."),
     RESERVATION_DATE_PASSED(HttpResponseStatus.BAD_REQUEST, "R004", "날짜가 지난 상품은 예약이나 상태 변경이 불가능 합니다."),
