@@ -1,0 +1,44 @@
+plugins{
+    id 'com.google.protobuf' version '0.9.4'
+}
+
+dependencies {
+    implementation 'com.google.protobuf:protobuf-java:3.21.7'
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.21.7"
+    }
+
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                remove java
+                java {
+                }
+            }
+        }
+    }
+}
+
+
+sourceSets {
+    main {
+        proto {
+            srcDir "${project(':messaging-schema').projectDir}/src/main/proto"
+            include "**/${project.name}/*.proto"
+        }
+        java{
+            srcDirs 'src/main/java', 'build/generated/source/proto/main/java'
+        }
+    }
+}
+
+tasks.named('bootJar') {
+    enabled = false
+}
+
+tasks.withType(Copy).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

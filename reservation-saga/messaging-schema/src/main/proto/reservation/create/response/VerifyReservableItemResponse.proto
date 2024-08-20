@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package org.server.rsaga.reservableitem;
+
+message VerifyReservableItemResponse{
+  int64 reservableItemId = 1;
+  int64 reservableTimeId = 2;
+  int64 reservableItemPrice = 3;
+  int64 maxQuantityPerUser = 4;
+}
