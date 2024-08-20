@@ -8,10 +8,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.server.rsaga.messaging.producer.MessageProducer;
 import org.server.rsaga.saga.api.SagaDefinition;
+import org.server.rsaga.saga.api.SagaMessage;
 import org.server.rsaga.saga.api.impl.DefaultSagaDefinition;
-import org.server.rsaga.saga.message.MessageProducer;
-import org.server.rsaga.saga.message.SagaMessage;
 import org.server.rsaga.saga.promise.factory.SagaPromiseFactory;
 import org.server.rsaga.saga.step.impl.AggregateSagaStep;
 import org.server.rsaga.saga.step.impl.SingleSagaStep;
@@ -20,6 +20,8 @@ import org.server.rsaga.saga.step.impl.StepType;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,17 +31,18 @@ import static org.junit.jupiter.api.Assertions.*;
  * 테스트에서 생성된 SagaDefinition 의 내부 상태 검증은 equals 로 비교한다.
  * </pre>
  */
+@DisplayName("SagaDefinitionFactory Implementation Tests")
 @ExtendWith(MockitoExtension.class)
 class SagaDefinitionFactoryImplTest {
 
     @Mock
-    MessageProducer<Integer> messageProducer;
+    MessageProducer<Integer, Integer> messageProducer;
 
     @Mock
     SagaPromiseFactory sagaPromiseFactory;
 
     @InjectMocks
-    SagaDefinitionFactoryImpl<Integer> sagaDefinitionFactory;
+    SagaDefinitionFactoryImpl<Integer, Integer> sagaDefinitionFactory;
 
 
     /**
@@ -64,9 +67,9 @@ class SagaDefinitionFactoryImplTest {
     void should_sagaDefinitionCreated_when_validStepsAndOrder() {
         // given
         @SuppressWarnings("unchecked")
-        BiFunction<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.spy(BiFunction.class);
+        UnaryOperator<SagaMessage<Integer, Integer>> operation = Mockito.mock(UnaryOperator.class);
         @SuppressWarnings("unchecked")
-        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation = Mockito.mock(BiFunction.class);
+        Function<List<SagaMessage<Integer, Integer>>, SagaMessage<Integer, Integer>> aggregateOperation = Mockito.mock(Function.class);
 
         SingleSagaStep<Integer, Integer> step1 = new SingleSagaStep<>(1, "none", operation, messageProducer, StepType.EXECUTE);
         SingleSagaStep<Integer, Integer> step2 = new SingleSagaStep<>(2, "none", operation, messageProducer, StepType.EXECUTE);
@@ -77,7 +80,7 @@ class SagaDefinitionFactoryImplTest {
         AggregateSagaStep<Integer, Integer> step6 = new AggregateSagaStep<>(6, "none", aggregateOperation, messageProducer, StepType.EXECUTE);
         SingleSagaStep<Integer, Integer> step7 = new SingleSagaStep<>(6, "none", operation, messageProducer, StepType.EXECUTE);
 
-        Map<Integer, Map<StepType, Consumer<SagaMessage<Integer>>>> sagaStepMap = new HashMap<>();
+        Map<Integer, Map<StepType, Consumer<SagaMessage<Integer, Integer>>>> sagaStepMap = new HashMap<>();
         sagaStepMap.putIfAbsent(0, new EnumMap<>(StepType.class));
         sagaStepMap.get(0).put(StepType.INITIAL, null);
         sagaStepMap.putIfAbsent(1, new EnumMap<>(StepType.class));
@@ -92,7 +95,7 @@ class SagaDefinitionFactoryImplTest {
         sagaStepMap.putIfAbsent(7, new EnumMap<>(StepType.class));
         sagaStepMap.get(7).put(StepType.EXECUTE, step7::publishEvent);
 
-        Map<Integer, Map<StepType, Consumer<List<SagaMessage<Integer>>>>> aggregateSagaStepMap = new HashMap<>();
+        Map<Integer, Map<StepType, Consumer<List<SagaMessage<Integer, Integer>>>>> aggregateSagaStepMap = new HashMap<>();
         aggregateSagaStepMap.putIfAbsent(4, new EnumMap<>(StepType.class));
         aggregateSagaStepMap.get(4).put(StepType.EXECUTE, step4::publishEvent);
         aggregateSagaStepMap.putIfAbsent(6, new EnumMap<>(StepType.class));
@@ -126,10 +129,10 @@ class SagaDefinitionFactoryImplTest {
         stepTypeMap.put(6, StepType.EXECUTE);
         stepTypeMap.put(7, StepType.EXECUTE);
 
-        DefaultSagaDefinition<Integer> expectSagaDefinition = new DefaultSagaDefinition<>(sagaPromiseFactory, sagaStepMap, aggregateSagaStepMap, dependencyMap, stepTypeMap);
+        DefaultSagaDefinition<Integer, Integer> expectSagaDefinition = new DefaultSagaDefinition<>(sagaPromiseFactory, sagaStepMap, aggregateSagaStepMap, dependencyMap, stepTypeMap);
 
         // when
-        SagaDefinition<Integer> actureSagaDefinition = sagaDefinitionFactory
+        SagaDefinition actureSagaDefinition = sagaDefinitionFactory
                 .addStep("step1", "none", operation, messageProducer, StepType.EXECUTE)
                 .addStep("step2", "none", operation, messageProducer, StepType.EXECUTE)
                 .addStep("step3", "none", operation, messageProducer, StepType.EXECUTE)
@@ -159,9 +162,9 @@ class SagaDefinitionFactoryImplTest {
     void should_fail_when_stepsOutOfOrder() {
         // given
         @SuppressWarnings("unchecked")
-        BiFunction<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.mock(BiFunction.class);
+        UnaryOperator<SagaMessage<Integer, Integer>> operation = Mockito.mock(UnaryOperator.class);
         @SuppressWarnings("unchecked")
-        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation =  Mockito.mock(BiFunction.class);
+        Function<List<SagaMessage<Integer, Integer>>, SagaMessage<Integer, Integer>> aggregateOperation = Mockito.mock(Function.class);
 
         // when
         sagaDefinitionFactory
@@ -185,9 +188,9 @@ class SagaDefinitionFactoryImplTest {
     void should_fail_when_addIdenticalNameAndTypeSteps() {
         // given
         @SuppressWarnings("unchecked")
-        BiFunction<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.mock(BiFunction.class);
+        UnaryOperator<SagaMessage<Integer, Integer>> operation = Mockito.mock(UnaryOperator.class);
         @SuppressWarnings("unchecked")
-        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation =  Mockito.mock(BiFunction.class);
+        Function<List<SagaMessage<Integer, Integer>>, SagaMessage<Integer, Integer>> aggregateOperation = Mockito.mock(Function.class);
 
 
         // when
@@ -226,9 +229,9 @@ class SagaDefinitionFactoryImplTest {
     void should_sagaDefinitionCreated_when_addNonExecuteStepAfterValidExecuteSteps() {
         // given
         @SuppressWarnings("unchecked")
-        BiFunction<Integer, SagaMessage<Integer>, SagaMessage<Integer>> operation = Mockito.mock(BiFunction.class);
+        UnaryOperator<SagaMessage<Integer, Integer>> operation = Mockito.mock(UnaryOperator.class);
         @SuppressWarnings("unchecked")
-        BiFunction<Integer, List<SagaMessage<Integer>>, SagaMessage<Integer>> aggregateOperation =  Mockito.mock(BiFunction.class);
+        Function<List<SagaMessage<Integer, Integer>>, SagaMessage<Integer, Integer>> aggregateOperation = Mockito.mock(Function.class);
 
         SingleSagaStep<Integer, Integer> step1 = new SingleSagaStep<>(1, "none", operation, messageProducer, StepType.EXECUTE);
         SingleSagaStep<Integer, Integer> step2 = new SingleSagaStep<>(2, "none", operation, messageProducer, StepType.EXECUTE);
@@ -237,7 +240,7 @@ class SagaDefinitionFactoryImplTest {
         AggregateSagaStep<Integer, Integer> step4 = new AggregateSagaStep<>(4, "none", aggregateOperation, messageProducer, StepType.EXECUTE);
         AggregateSagaStep<Integer, Integer> step5 = new AggregateSagaStep<>(5, "none", aggregateOperation, messageProducer, StepType.EXECUTE);
 
-        Map<Integer, Map<StepType, Consumer<SagaMessage<Integer>>>> sagaStepMap = new HashMap<>();
+        Map<Integer, Map<StepType, Consumer<SagaMessage<Integer, Integer>>>> sagaStepMap = new HashMap<>();
         sagaStepMap.putIfAbsent(0, new EnumMap<>(StepType.class));
         sagaStepMap.get(0).put(StepType.INITIAL, null);
         sagaStepMap.putIfAbsent(1, new EnumMap<>(StepType.class));
@@ -248,7 +251,7 @@ class SagaDefinitionFactoryImplTest {
         sagaStepMap.get(3).put(StepType.EXECUTE, step3::publishEvent);
         sagaStepMap.get(3).put(StepType.COMPENSATE, step3Compensate::publishEvent);
 
-        Map<Integer, Map<StepType, Consumer<List<SagaMessage<Integer>>>>> aggregateSagaStepMap = new HashMap<>();
+        Map<Integer, Map<StepType, Consumer<List<SagaMessage<Integer, Integer>>>>> aggregateSagaStepMap = new HashMap<>();
         aggregateSagaStepMap.putIfAbsent(4, new EnumMap<>(StepType.class));
         aggregateSagaStepMap.get(4).put(StepType.EXECUTE, step4::publishEvent);
         aggregateSagaStepMap.putIfAbsent(5, new EnumMap<>(StepType.class));
@@ -275,10 +278,10 @@ class SagaDefinitionFactoryImplTest {
         stepTypeMap.put(4, StepType.EXECUTE);
         stepTypeMap.put(5, StepType.EXECUTE);
 
-        DefaultSagaDefinition<Integer> expectSagaDefinition = new DefaultSagaDefinition<>(sagaPromiseFactory, sagaStepMap, aggregateSagaStepMap, dependencyMap, stepTypeMap);
+        DefaultSagaDefinition<Integer, Integer> expectSagaDefinition = new DefaultSagaDefinition<>(sagaPromiseFactory, sagaStepMap, aggregateSagaStepMap, dependencyMap, stepTypeMap);
 
         // when
-        SagaDefinition<Integer> actureSagaDefinition = sagaDefinitionFactory
+        SagaDefinition actureSagaDefinition = sagaDefinitionFactory
                 .addStep("step1", "none", operation, messageProducer, StepType.EXECUTE)
                 .addStep("step2", "none", operation, messageProducer, StepType.EXECUTE)
                 .addStep("step3", "none", operation, messageProducer, StepType.EXECUTE)
@@ -288,6 +291,85 @@ class SagaDefinitionFactoryImplTest {
                 .getSagaDefinition();
 
         //then
+        assertNotNull(actureSagaDefinition, "The created SagaDefinition is null.");
+        assertEquals(expectSagaDefinition, actureSagaDefinition, "The created SagaDefinition and the expected SagaDefinition are different.");
+    }
+
+    /**
+     * <pre>
+     *  +----------------------------------+
+     *  ^                                  |
+     *  |       +-> [1] --+                v
+     *  |       |         | ------------> [4] --------> [5]
+     *  |       |    +----+                ^
+     *  |       |    |                     |
+     * [0] ---> +-> [2]                    |
+     *  |            |                     |
+     *  |            +----+                |
+     *  v                 | ---> [3] ------+
+     *  +-----------------+
+     *
+     * </pre>
+     */
+    @Test
+    @DisplayName("올바른 순서의 execute step, 시작 step 의존 - 올바른 순서로 등록 - 성공")
+    void should_sagaDefinitionCreated_when_initialStepDependence() {
+        // given
+        @SuppressWarnings("unchecked")
+        UnaryOperator<SagaMessage<Integer, Integer>> operation = Mockito.mock(UnaryOperator.class);
+        @SuppressWarnings("unchecked")
+        Function<List<SagaMessage<Integer, Integer>>, SagaMessage<Integer, Integer>> aggregateOperation = Mockito.mock(Function.class);
+
+        SingleSagaStep<Integer, Integer> step1 = new SingleSagaStep<>(1, "none", operation, messageProducer, StepType.EXECUTE);
+        SingleSagaStep<Integer, Integer> step2 = new SingleSagaStep<>(2, "none", operation, messageProducer, StepType.EXECUTE);
+        AggregateSagaStep<Integer, Integer> step3 = new AggregateSagaStep<>(3, "none", aggregateOperation, messageProducer, StepType.EXECUTE);
+        AggregateSagaStep<Integer, Integer> step4 = new AggregateSagaStep<>(4, "none", aggregateOperation, messageProducer, StepType.EXECUTE);
+
+        Map<Integer, Map<StepType, Consumer<SagaMessage<Integer, Integer>>>> sagaStepMap = new HashMap<>();
+        sagaStepMap.putIfAbsent(0, new EnumMap<>(StepType.class));
+        sagaStepMap.get(0).put(StepType.INITIAL, null);
+        sagaStepMap.putIfAbsent(1, new EnumMap<>(StepType.class));
+        sagaStepMap.get(1).put(StepType.EXECUTE, step1::publishEvent);
+        sagaStepMap.putIfAbsent(2, new EnumMap<>(StepType.class));
+        sagaStepMap.get(2).put(StepType.EXECUTE, step2::publishEvent);
+
+        Map<Integer, Map<StepType, Consumer<List<SagaMessage<Integer, Integer>>>>> aggregateSagaStepMap = new HashMap<>();
+        aggregateSagaStepMap.putIfAbsent(3, new EnumMap<>(StepType.class));
+        aggregateSagaStepMap.get(3).put(StepType.EXECUTE, step3::publishEvent);
+        aggregateSagaStepMap.putIfAbsent(4, new EnumMap<>(StepType.class));
+        aggregateSagaStepMap.get(4).put(StepType.EXECUTE, step4::publishEvent);
+
+        SortedMap<Integer, Set<Integer>> dependencyMap = new TreeMap<>();
+        dependencyMap.putIfAbsent(1, new HashSet<>());
+        dependencyMap.get(1).add(0);
+        dependencyMap.putIfAbsent(2, new HashSet<>());
+        dependencyMap.get(2).add(0);
+        dependencyMap.putIfAbsent(3, new HashSet<>());
+        dependencyMap.get(3).add(0);
+        dependencyMap.get(3).add(2);
+        dependencyMap.putIfAbsent(4, new HashSet<>());
+        dependencyMap.get(4).add(1);
+        dependencyMap.get(4).add(2);
+        dependencyMap.get(4).add(3);
+        dependencyMap.get(4).add(0);
+
+        Map<Integer, StepType> stepTypeMap = new HashMap<>();
+        stepTypeMap.put(1, StepType.EXECUTE);
+        stepTypeMap.put(2, StepType.EXECUTE);
+        stepTypeMap.put(3, StepType.EXECUTE);
+        stepTypeMap.put(4, StepType.EXECUTE);
+
+        DefaultSagaDefinition<Integer, Integer> expectSagaDefinition = new DefaultSagaDefinition<>(sagaPromiseFactory, sagaStepMap, aggregateSagaStepMap, dependencyMap, stepTypeMap);
+
+        // when
+        SagaDefinition actureSagaDefinition = sagaDefinitionFactory
+                .addStep("step1", "none", operation, messageProducer, StepType.EXECUTE)
+                .addStep("step2", "none", operation, messageProducer, StepType.EXECUTE)
+                .addStep("step3", "none", aggregateOperation, messageProducer, StepType.EXECUTE, "step2", SagaDefinitionFactoryImpl.getInitialStepName())
+                .addStep("step4", "none", aggregateOperation, messageProducer, StepType.EXECUTE, "step1", "step2", "step3", SagaDefinitionFactoryImpl.getInitialStepName())
+                .getSagaDefinition();
+
+        // then
         assertNotNull(actureSagaDefinition, "The created SagaDefinition is null.");
         assertEquals(expectSagaDefinition, actureSagaDefinition, "The created SagaDefinition and the expected SagaDefinition are different.");
     }

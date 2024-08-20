@@ -1,7 +1,7 @@
 package org.server.rsaga.saga.step;
 
-import org.server.rsaga.saga.message.SagaMessage;
+import org.server.rsaga.saga.api.SagaMessage;
 
-public interface SingleEventSagaStep<I> extends SagaStep {
-    void publishEvent(SagaMessage<I> input);
+public interface SingleEventSagaStep<K, V> extends SagaStep {
+    void publishEvent(SagaMessage<K, V> input);
 }

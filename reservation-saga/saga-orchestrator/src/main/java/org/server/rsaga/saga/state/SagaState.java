@@ -1,9 +1,9 @@
 package org.server.rsaga.saga.state;
 
-import org.server.rsaga.saga.message.SagaMessage;
+import org.server.rsaga.saga.api.SagaMessage;
 
-public interface SagaState<T> {
-    void setSuccess(SagaMessage<T> message);
-    void setFailure(Throwable cause);
-    boolean isDone();
+public interface SagaState<K, V> {
+    void updateState(SagaMessage<K, V> message);
+    void handleException(Throwable cause);
+    boolean isAllDone();
 }

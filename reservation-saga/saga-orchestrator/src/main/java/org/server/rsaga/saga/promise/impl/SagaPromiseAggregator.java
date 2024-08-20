@@ -3,6 +3,7 @@ package org.server.rsaga.saga.promise.impl;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.internal.ObjectUtil;
+import org.server.rsaga.saga.api.SagaMessage;
 import org.server.rsaga.saga.promise.SagaPromise;
 
 import java.util.ArrayList;
@@ -17,16 +18,8 @@ import java.util.List;
  * 이 결과물을 aggregatePromise 의 실행 입력값으로 설정하여 실행한다.
  * </pre>
  */
-public final class SagaPromiseAggregator<I, R> {
+public final class SagaPromiseAggregator<I extends SagaMessage<?, ?>, R extends SagaMessage<?, ?>> {
     private int expectedCount;
-
-    // 이체
-    // 이체 -> 유저모듈 컨트롤러 유저 아이디 찾는 메서드 호출
-    // 유저 모듈 레포지토리 찾으면 -> 이체에서는 objectmapper 로 http 응답 매핑 json
-    // 이체에서 dto response 받은거를
-    // 이체 entity 생성할떄 userid 넣는방식
-    //
-    // restTemplet(url) -> 응답이 json
     private SagaPromise<List<I>, R> aggregatePromise;
     private final List<I> results = new ArrayList<>();
     private Throwable cause;
@@ -48,7 +41,7 @@ public final class SagaPromiseAggregator<I, R> {
             aggregatePromise.execute(results);
         }
         else {
-            aggregatePromise.failure(cause);
+            aggregatePromise.cancelDueToOtherFailure(cause);
         }
     }
 

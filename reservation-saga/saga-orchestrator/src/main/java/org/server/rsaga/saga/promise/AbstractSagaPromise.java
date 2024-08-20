@@ -5,15 +5,19 @@ import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.Promise;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.server.rsaga.saga.api.SagaMessage;
 
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public abstract class AbstractSagaPromise<I, R> implements SagaPromise<I, R>{
+public abstract class AbstractSagaPromise<I, R extends SagaMessage<?, ?>> implements SagaPromise<I, R>{
     protected Promise<R> executePromise;
     private Consumer<I> execute;
-    protected I input;
+    private boolean isExecutionPerformed = false;
+
 
     protected AbstractSagaPromise(Promise<R> executePromise, Consumer<I> execute) {
         this.executePromise = executePromise;
@@ -22,8 +26,7 @@ public abstract class AbstractSagaPromise<I, R> implements SagaPromise<I, R>{
 
     @Override
     public R get() throws ExecutionException, InterruptedException {
-        executePromise.sync();
-        return executePromise.get();
+        return executePromise.await().get();
     }
 
     @Override
@@ -43,8 +46,8 @@ public abstract class AbstractSagaPromise<I, R> implements SagaPromise<I, R>{
 
     @Override
     public void execute(I input) {
-        if (this.input == null) {
-            this.input = input;
+        if (!isExecutionPerformed) {
+            isExecutionPerformed = true;
             execute.accept(input);
         }
     }
@@ -57,5 +60,9 @@ public abstract class AbstractSagaPromise<I, R> implements SagaPromise<I, R>{
     @Override
     public Throwable cause() {
         return executePromise.cause();
+    }
+
+    protected boolean isExecutionPerformed() {
+        return isExecutionPerformed;
     }
 }

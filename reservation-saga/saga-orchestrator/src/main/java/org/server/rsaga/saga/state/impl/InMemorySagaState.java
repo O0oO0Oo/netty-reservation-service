@@ -1,27 +1,40 @@
 package org.server.rsaga.saga.state.impl;
 
-import org.server.rsaga.saga.message.SagaMessage;
+import org.server.rsaga.messaging.message.Message;
+import org.server.rsaga.saga.api.SagaMessage;
+import org.server.rsaga.saga.exception.RemoteServiceException;
 import org.server.rsaga.saga.promise.SagaPromise;
 import org.server.rsaga.saga.state.SagaState;
 
 import java.util.Arrays;
 
-public class InMemorySagaState<T> implements SagaState<T> {
-    private final SagaPromise<?, SagaMessage<T>>[] sagaPromises;
-    public InMemorySagaState(SagaPromise<?, SagaMessage<T>>[] sagaPromises) {
+public class InMemorySagaState<K, V> implements SagaState<K, V> {
+    private final SagaPromise<?, SagaMessage<K, V>>[] sagaPromises;
+    public InMemorySagaState(SagaPromise<?, SagaMessage<K, V>>[] sagaPromises) {
         this.sagaPromises = sagaPromises;
+    }
+
+    @Override
+    public void updateState(SagaMessage<K, V> message) {
+        if (message.status().equals(Message.Status.RESPONSE_FAILED)) {
+            setFailure(
+                   message, new RemoteServiceException(message.errorCode(), message.errorMessage())
+            );
+        }
+        else {
+            setSuccess(message);
+        }
     }
 
     /**
      * 성공 요청 실패 시 setFailure 설정
      * @param message
      */
-    @Override
-    public void setSuccess(SagaMessage<T> message) {
+    private void setSuccess(SagaMessage<K, V> message) {
         try {
-            sagaPromises[message.getStepId()].success(message);
+            sagaPromises[message.stepId()].success(message);
         } catch (Exception e) {
-            setFailure(e);
+            setFailure(message, e);
         }
     }
 
@@ -29,12 +42,24 @@ public class InMemorySagaState<T> implements SagaState<T> {
      * 모든 작업 실패로 설정, Compensate 요청 시작
      * @param cause
      */
-    @Override
-    public void setFailure(Throwable cause) {
-        for (SagaPromise<?, SagaMessage<T>> sagaPromise : sagaPromises) {
-            sagaPromise.failure(cause);
+    private void setFailure(SagaMessage<K, V> message, Throwable cause) {
+        int stepId = message.stepId();
+        sagaPromises[stepId].failure(message, cause);
+
+        for (int i = 0; i < sagaPromises.length; i++) {
+            if (i != stepId) {
+                sagaPromises[i].cancelDueToOtherFailure(cause);
+            }
         }
     }
+
+    @Override
+    public void handleException(Throwable cause) {
+        for (SagaPromise<?, SagaMessage<K, V>> sagaPromise : sagaPromises) {
+            sagaPromise.cancelDueToOtherFailure(cause);
+        }
+    }
+
 
     /**
      * <pre>
@@ -44,7 +69,7 @@ public class InMemorySagaState<T> implements SagaState<T> {
      * @return 실패, 성공과 상관 없이, 완료시 true
      */
     @Override
-    public boolean isDone() {
+    public boolean isAllDone() {
         return Arrays.stream(sagaPromises).allMatch(SagaPromise::isDone);
     }
 }

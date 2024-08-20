@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.server.rsaga.saga.message.SagaMessage;
+import org.server.rsaga.messaging.message.Message;
+import org.server.rsaga.saga.api.SagaMessage;
 import org.server.rsaga.saga.promise.SagaPromise;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -18,23 +19,24 @@ import static org.mockito.Mockito.*;
  * 사가의 각 실행 상태를 관리하는 클래스
  * </pre>
  */
+@DisplayName("SagaState Implementation Tests")
 @ExtendWith(MockitoExtension.class)
 class InMemorySagaStateTest {
     @Mock
-    SagaPromise<?, SagaMessage<Object>> sagaPromise1;
+    SagaPromise<?, SagaMessage<Object, Object>> sagaPromise1;
     @Mock
-    SagaPromise<?, SagaMessage<Object>> sagaPromise2;
+    SagaPromise<?, SagaMessage<Object, Object>> sagaPromise2;
     @Mock
-    SagaPromise<?, SagaMessage<Object>> sagaPromise3;
+    SagaPromise<?, SagaMessage<Object, Object>> sagaPromise3;
 
     @Mock
-    SagaMessage<Object> sagaMessage;
+    SagaMessage<Object, Object> sagaMessage;
 
-    InMemorySagaState<Object> inMemorySagaState;
+    InMemorySagaState<Object, Object> inMemorySagaState;
 
     @BeforeEach
     void setUp() {
-        SagaPromise<?, SagaMessage<Object>>[] sagaPromises = new SagaPromise[]{sagaPromise1, sagaPromise2, sagaPromise3};
+        SagaPromise<?, SagaMessage<Object, Object>>[] sagaPromises = new SagaPromise[]{sagaPromise1, sagaPromise2, sagaPromise3};
         inMemorySagaState = new InMemorySagaState<>(sagaPromises);
     }
 
@@ -42,10 +44,11 @@ class InMemorySagaStateTest {
     @DisplayName("SagaMessage - 특정 SagaPromise 의 setSuccess 로 응답 설정 - 성공")
     void should_setSuccess_when_messageIsGiven() {
         // given
-        when(sagaMessage.getStepId()).thenReturn(0);
+        when(sagaMessage.stepId()).thenReturn(0);
+        when(sagaMessage.status()).thenReturn(Message.Status.RESPONSE_SUCCESS);
 
         // when
-        inMemorySagaState.setSuccess(sagaMessage);
+        inMemorySagaState.updateState(sagaMessage);
 
         // then
         verify(sagaPromise1, only().description("The success method should be called with the message")).success(sagaMessage);
@@ -57,17 +60,22 @@ class InMemorySagaStateTest {
     @DisplayName("SagaMessage - setSuccess 후 예외 발생 - failure 설정")
     void should_setFailure_when_exceptionOccurs() {
         // given
-        when(sagaMessage.getStepId()).thenReturn(0);
+        when(sagaMessage.stepId()).thenReturn(0);
+        when(sagaMessage.status()).thenReturn(Message.Status.RESPONSE_SUCCESS);
         doThrow(new RuntimeException()).when(sagaPromise1).success(sagaMessage);
 
         // when
-        inMemorySagaState.setSuccess(sagaMessage);
+        inMemorySagaState.updateState(sagaMessage);
 
         // then
-        verify(sagaPromise1, times(1).description("The success method should be called with the message")).success(sagaMessage);
-        verify(sagaPromise1, times(1).description("The failure method should be called on exception")).failure(any(RuntimeException.class));
-        verify(sagaPromise2, only().description("The failure method should be called on all saga promises")).failure(any(RuntimeException.class));
-        verify(sagaPromise3, only().description("The failure method should be called on all saga promises")).failure(any(RuntimeException.class));
+        verify(sagaPromise1, times(1).description("The success method should be called with the message"))
+                .success(sagaMessage);
+        verify(sagaPromise1, times(1).description("The failure method should be called on exception"))
+                .failure(any(SagaMessage.class), any(RuntimeException.class));
+        verify(sagaPromise2, only().description("The failure method should be called on all saga promises"))
+                .cancelDueToOtherFailure(any(RuntimeException.class));
+        verify(sagaPromise3, only().description("The failure method should be called on all saga promises"))
+                .cancelDueToOtherFailure(any(RuntimeException.class));
     }
 
     @Test
@@ -77,12 +85,12 @@ class InMemorySagaStateTest {
         Throwable cause = new Throwable("Request failed.");
 
         // when
-        inMemorySagaState.setFailure(cause);
+        inMemorySagaState.handleException(cause);
 
         // then
-        verify(sagaPromise1, only().description("The failure method should be called with the cause")).failure(cause);
-        verify(sagaPromise2, only().description("The failure method should be called with the cause")).failure(cause);
-        verify(sagaPromise3, only().description("The failure method should be called with the cause")).failure(cause);
+        verify(sagaPromise1, only().description("The failure method should be called with the cause")).cancelDueToOtherFailure(cause);
+        verify(sagaPromise2, only().description("The failure method should be called with the cause")).cancelDueToOtherFailure(cause);
+        verify(sagaPromise3, only().description("The failure method should be called with the cause")).cancelDueToOtherFailure(cause);
     }
 
     @Test
@@ -94,7 +102,7 @@ class InMemorySagaStateTest {
         when(sagaPromise3.isDone()).thenReturn(true);
 
         // when
-        boolean result = inMemorySagaState.isDone();
+        boolean result = inMemorySagaState.isAllDone();
 
         // then
         assertTrue(result, "isDone should return true when all saga promises are done");
@@ -109,7 +117,7 @@ class InMemorySagaStateTest {
         when(sagaPromise3.isDone()).thenReturn(false);
 
         // when
-        boolean result = inMemorySagaState.isDone();
+        boolean result = inMemorySagaState.isAllDone();
 
         // then
         assertFalse(result, "isDone() should return false when not all saga promises are done");

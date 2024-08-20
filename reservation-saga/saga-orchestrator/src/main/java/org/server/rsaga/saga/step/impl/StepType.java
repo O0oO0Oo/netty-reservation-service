@@ -7,5 +7,10 @@ public enum StepType {
     INITIAL,
     EXECUTE,
     COMPENSATE,
-    FINAL
+    ;
+
+    public static StepType fromBytes(byte[] bytes) {
+        String value = new String(bytes);
+        return StepType.valueOf(value);
+    }
 }

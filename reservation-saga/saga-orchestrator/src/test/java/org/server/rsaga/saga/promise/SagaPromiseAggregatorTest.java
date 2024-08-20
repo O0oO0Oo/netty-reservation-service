@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.server.rsaga.messaging.message.Message;
+import org.server.rsaga.saga.api.SagaMessage;
 import org.server.rsaga.saga.promise.impl.DefaultSagaPromise;
 import org.server.rsaga.saga.promise.impl.SagaPromiseAggregator;
 
@@ -23,8 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * 이전의 수행되어야 할 작업들이 여러개인 Promise 를 설정하는 {@link org.server.rsaga.saga.promise.impl.SagaPromiseAggregator} 의 테스트
+ * 이전의 수행되어야 할 작업들이 여러개인 Promise 를 설정하는 {@link SagaPromiseAggregator} 의 테스트
  */
+@DisplayName("SagaPromiseAggregator Implementation Tests")
 @ExtendWith(MockitoExtension.class)
 class SagaPromiseAggregatorTest {
 
@@ -41,43 +44,47 @@ class SagaPromiseAggregatorTest {
 
     @Test
     @DisplayName("SagaPromises - 의존하는 Promise 모두 성공 - AggregatePromise 동작 실행")
-    void should_aggregatePromiseSuccess_when_dependencySagaIsSuccess() throws InterruptedException {
+    void should_aggregatePromiseSuccess_when_dependencySagaIsSuccess() {
         // given
         CountDownLatch latch = new CountDownLatch(1);
 
-        Consumer<Integer> executeOperation = Mockito.mock(Consumer.class);
-        Promise<Integer> promise1 = eventLoopGroup.next().newPromise();
-        Promise<Integer> promise2 = eventLoopGroup.next().newPromise();
-        SagaPromise<Integer, Integer> sagaPromise1 = new DefaultSagaPromise<>(promise1, executeOperation);
-        SagaPromise<Integer, Integer> sagaPromise2 = new DefaultSagaPromise<>(promise2, executeOperation);
+        Consumer<SagaMessage<Integer, Integer>> executeOperation = Mockito.mock(Consumer.class);
+        Promise<SagaMessage<Integer, Integer>> promise1 = eventLoopGroup.next().newPromise();
+        Promise<SagaMessage<Integer, Integer>> promise2 = eventLoopGroup.next().newPromise();
+        SagaPromise<SagaMessage<Integer, Integer>, SagaMessage<Integer, Integer>> sagaPromise1 = new DefaultSagaPromise<>(promise1, executeOperation);
+        SagaPromise<SagaMessage<Integer, Integer>, SagaMessage<Integer, Integer>> sagaPromise2 = new DefaultSagaPromise<>(promise2, executeOperation);
 
         AtomicInteger result = new AtomicInteger();
-        Consumer<List<Integer>> finishExecuteOperation = (messages) -> {
-            result.set(messages.stream().mapToInt(Integer::intValue).sum());
+        Consumer<List<SagaMessage<Integer, Integer>>> finishExecuteOperation = (messages) -> {
+            result.set(messages.stream().mapToInt(Message::payload).sum());
             latch.countDown();
         };
-        Promise<Integer> finishPromise = eventLoopGroup.next().newPromise();
-        SagaPromise<List<Integer>, Integer> finishSagaPromise = new DefaultSagaPromise<>(finishPromise, finishExecuteOperation);
+        Promise<SagaMessage<Integer, Integer>> finishPromise = eventLoopGroup.next().newPromise();
+        SagaPromise<List<SagaMessage<Integer, Integer>>, SagaMessage<Integer, Integer>> finishSagaPromise = new DefaultSagaPromise<>(finishPromise, finishExecuteOperation);
 
-        SagaPromiseAggregator<Integer, Integer> sagaPromiseAggregator = new SagaPromiseAggregator<>();
+        SagaPromiseAggregator<SagaMessage<Integer, Integer>, SagaMessage<Integer, Integer>> sagaPromiseAggregator = new SagaPromiseAggregator<>();
         sagaPromiseAggregator.add(sagaPromise1);
         sagaPromiseAggregator.add(sagaPromise2);
         sagaPromiseAggregator.finish(finishSagaPromise);
 
         // when
+        SagaMessage<Integer, Integer> response1 = SagaMessage.of(10, 10, Message.Status.RESPONSE_SUCCESS);
+
         CompletableFuture<Void> cf =
                 CompletableFuture.runAsync(
                                 () -> {
-                                    sagaPromise1.execute(10);
-                                    sagaPromise1.success(10);
+                                    sagaPromise1.execute(response1);
+                                    sagaPromise1.success(response1);
                                 }
                         )
                         .thenRunAsync(
                                 () -> {
-                                    sagaPromise2.execute(10);
-                                    sagaPromise2.success(10);
+                                    sagaPromise2.execute(response1);
+                                    sagaPromise2.success(response1);
                                 }
                         );
+
+        SagaMessage<Integer, Integer> response2 = SagaMessage.of(10, 20, Message.Status.RESPONSE_SUCCESS);
         CompletableFuture<Void> finishCf =
                 cf.thenRun(() ->
                         {
@@ -87,14 +94,12 @@ class SagaPromiseAggregatorTest {
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
-                            finishSagaPromise.success(20);
+                            finishSagaPromise.success(response2);
                         }
                 );
 
         // wait
         finishCf.join();
-        eventLoopGroup.shutdownGracefully();
-        eventLoopGroup.terminationFuture().sync();
 
         // then
         assertTrue(promise1.isSuccess(), "promise1 must succeed.");

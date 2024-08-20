@@ -1,11 +1,11 @@
 package org.server.rsaga.saga.state;
 
-import org.server.rsaga.saga.message.Key;
+import io.hypersistence.tsid.TSID;
 
-public interface SagaStateCache<V> {
-    SagaState<V> get(Key key);
+public interface SagaStateCache<K, V> {
+    SagaState<K, V> get(TSID key);
 
-    void put(Key key, SagaState<V> value);
+    void put(TSID key, SagaState<K, V> value);
 
-    void remove(Key key);
+    void remove(TSID key);
 }

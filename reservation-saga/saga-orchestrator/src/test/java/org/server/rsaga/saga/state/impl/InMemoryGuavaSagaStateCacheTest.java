@@ -1,13 +1,15 @@
 package org.server.rsaga.saga.state.impl;
 
+import io.hypersistence.tsid.TSID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.server.rsaga.saga.message.Key;
 import org.server.rsaga.saga.state.SagaState;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -20,14 +22,15 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * key 는 항상 유니크하게 만들어진다, 또한 상태 변경은 Value 내부에서 이루어지기 때문에 테스트 할 필요가 없다.
  * </pre>
  */
+@DisplayName("SagaStateCache Implementation Tests")
 @ExtendWith(MockitoExtension.class)
 class InMemoryGuavaSagaStateCacheTest {
     @Mock
-    Key key;
+    TSID key;
     @Mock
-    SagaState<Object> expectedSagaState;
+    SagaState<Object, Object> expectedSagaState;
 
-    InMemoryGuavaSagaStateCache<Object> cache;
+    InMemoryGuavaSagaStateCache<Object, Object> cache;
 
     @BeforeEach
     void beforeEach() {
@@ -41,7 +44,7 @@ class InMemoryGuavaSagaStateCacheTest {
 
         // when
         cache.put(key, expectedSagaState);
-        SagaState<Object> actualSagaState = cache.get(key);
+        SagaState<Object, Object> actualSagaState = cache.get(key);
 
         // then
         assertEquals(expectedSagaState, actualSagaState, "The data in put and the result in get should be the same.");
@@ -54,9 +57,9 @@ class InMemoryGuavaSagaStateCacheTest {
 
         // when
         cache.put(key, expectedSagaState);
-        SagaState<Object> actualSagaState = cache.get(key);
+        SagaState<Object, Object> actualSagaState = cache.get(key);
         cache.remove(key);
-        SagaState<Object> removedResult = cache.get(key);
+        SagaState<Object, Object> removedResult = cache.get(key);
 
         // then
         assertEquals(expectedSagaState, actualSagaState, "The data in put and the result in get should be the same.");

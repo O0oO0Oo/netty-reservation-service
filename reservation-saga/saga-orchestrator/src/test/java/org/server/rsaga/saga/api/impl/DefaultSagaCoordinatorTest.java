@@ -8,12 +8,14 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.server.rsaga.messaging.consumer.MessageConsumer;
+import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.saga.api.SagaDefinition;
-import org.server.rsaga.saga.message.MessageConsumer;
-import org.server.rsaga.saga.message.SagaMessage;
+import org.server.rsaga.saga.api.SagaMessage;
 import org.server.rsaga.saga.promise.SagaPromise;
 import org.server.rsaga.saga.state.SagaStateManager;
 
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 import static org.mockito.Mockito.*;
@@ -21,27 +23,33 @@ import static org.mockito.Mockito.*;
 /**
  * 사가 작업의 시작, 응답을 받아 처리하는 {@link org.server.rsaga.saga.api.SagaCoordinator} 의 테스트
  */
+
+@DisplayName("SagaCoordinator Implementation Tests")
 @ExtendWith(MockitoExtension.class)
 class DefaultSagaCoordinatorTest {
     @Mock
-    SagaDefinition<Integer> sagaDefinition;
+    SagaDefinition sagaDefinition;
     @Mock
-    SagaStateManager<Integer> sagaStateManager;
+    SagaStateManager<Integer, Integer> sagaStateManager;
     @Mock
-    MessageConsumer<Integer> messageConsumer;
+    MessageConsumer<Integer, Integer> messageConsumer;
 
     @InjectMocks
-    DefaultSagaCoordinator<Integer> sagaCoordinator;
+    DefaultSagaCoordinator<Integer, Integer> sagaCoordinator;
 
     @Captor
-    private ArgumentCaptor<Consumer<SagaMessage<Integer>>> messageCaptor;
+    private ArgumentCaptor<Consumer<Message<Integer, Integer>>> messageCaptor;
 
     @Test
     @DisplayName("SagaMessage - 사가 요청 시작 - 성공")
-    public void should_success_when_startSaga() {
+    public void should_success_when_startSaga() throws ExecutionException, InterruptedException {
         // given
-        SagaMessage<Integer> initSagaMessage = mock(SagaMessage.class);
-        SagaPromise<?, SagaMessage<Integer>>[] sagaPromises = new SagaPromise[]{};
+        SagaMessage<Integer, Integer> initSagaMessage = mock(SagaMessage.class);
+        SagaPromise[] sagaPromises = new SagaPromise[2];
+        SagaPromise<?, ?> promise1 = mock(SagaPromise.class);
+        SagaPromise<?, ?> promise2 = mock(SagaPromise.class);
+        sagaPromises[0] = promise1;
+        sagaPromises[1] = promise2;
         when(sagaDefinition.initializeSaga()).thenReturn(sagaPromises);
 
         // when
@@ -58,7 +66,7 @@ class DefaultSagaCoordinatorTest {
     @DisplayName("SagaMessage - 상태 업데이트 - 성공")
     public void testHandleMessage() {
         // given
-        SagaMessage<Integer> sagaMessage = mock(SagaMessage.class);
+        SagaMessage<Integer, Integer> sagaMessage = mock(SagaMessage.class);
 
         // when
         sagaCoordinator.handleMessage(sagaMessage);
@@ -76,7 +84,7 @@ class DefaultSagaCoordinatorTest {
                 .registerHandler(messageCaptor.capture());
 
         // given
-        SagaMessage<Integer> sagaMessage = mock(SagaMessage.class);
+        SagaMessage<Integer, Integer> sagaMessage = mock(SagaMessage.class);
 
         // when
         messageCaptor.getValue().accept(sagaMessage);

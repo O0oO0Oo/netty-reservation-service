@@ -1,7 +1,7 @@
 package org.server.rsaga.saga.api.impl;
 
 import org.server.rsaga.saga.api.SagaDefinition;
-import org.server.rsaga.saga.message.SagaMessage;
+import org.server.rsaga.saga.api.SagaMessage;
 import org.server.rsaga.saga.promise.SagaPromise;
 import org.server.rsaga.saga.promise.factory.SagaPromiseFactory;
 import org.server.rsaga.saga.promise.factory.SagaPromiseFactoryImpl;
@@ -14,25 +14,25 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.function.Consumer;
 
-public class DefaultSagaDefinition<T> implements SagaDefinition<T> {
+public class DefaultSagaDefinition<K, V> implements SagaDefinition {
     private static final int INIT_STEP_ID = 0;
 
     private final SagaPromiseFactory sagaPromiseFactory;
-    private final Map<Integer, Map<StepType, Consumer<SagaMessage<T>>>> sagaStepMap;
-    private final Map<Integer, Map<StepType, Consumer<List<SagaMessage<T>>>>> aggregateSagaStepMap;
+    private final Map<Integer, Map<StepType, Consumer<SagaMessage<K, V>>>> sagaStepMap;
+    private final Map<Integer, Map<StepType, Consumer<List<SagaMessage<K, V>>>>> aggregateSagaStepMap;
     private final SortedMap<Integer, Set<Integer>> dependencyMap;
     private final Map<Integer, StepType> stepTypeMap;
 
-    public DefaultSagaDefinition(Map<Integer, Map<StepType, Consumer<SagaMessage<T>>>> sagaStepMap,
-                                 Map<Integer, Map<StepType, Consumer<List<SagaMessage<T>>>>> aggregateSagaStepMap,
+    public DefaultSagaDefinition(Map<Integer, Map<StepType, Consumer<SagaMessage<K, V>>>> sagaStepMap,
+                                 Map<Integer, Map<StepType, Consumer<List<SagaMessage<K, V>>>>> aggregateSagaStepMap,
                                  SortedMap<Integer, Set<Integer>> dependencyMap,
                                  Map<Integer, StepType> stepTypeMap) {
         this(new SagaPromiseFactoryImpl(), sagaStepMap, aggregateSagaStepMap, dependencyMap, stepTypeMap);
     }
 
     public DefaultSagaDefinition(SagaPromiseFactory sagaPromiseFactory,
-                                 Map<Integer, Map<StepType, Consumer<SagaMessage<T>>>> sagaStepMap,
-                                 Map<Integer, Map<StepType, Consumer<List<SagaMessage<T>>>>> aggregateSagaStepMap,
+                                 Map<Integer, Map<StepType, Consumer<SagaMessage<K, V>>>> sagaStepMap,
+                                 Map<Integer, Map<StepType, Consumer<List<SagaMessage<K, V>>>>> aggregateSagaStepMap,
                                  SortedMap<Integer, Set<Integer>> dependencyMap,
                                  Map<Integer, StepType> stepTypeMap) {
         this.sagaPromiseFactory = sagaPromiseFactory;
@@ -44,8 +44,8 @@ public class DefaultSagaDefinition<T> implements SagaDefinition<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public SagaPromise<?, SagaMessage<T>>[] initializeSaga() {
-        SagaPromise<?, SagaMessage<T>>[] sagaPromises = new SagaPromise[dependencyMap.size() + 1];
+    public SagaPromise<?, SagaMessage<K, V>>[] initializeSaga() {
+        SagaPromise<?, SagaMessage<K, V>>[] sagaPromises = new SagaPromise[dependencyMap.size() + 1];
         sagaPromises[INIT_STEP_ID] = createInitialSagaPromise();
 
         for (Map.Entry<Integer, Set<Integer>> dependencyEntry : dependencyMap.entrySet()) {
@@ -58,11 +58,11 @@ public class DefaultSagaDefinition<T> implements SagaDefinition<T> {
         return sagaPromises;
     }
 
-    private SagaPromise<?, SagaMessage<T>> createInitialSagaPromise() {
+    private SagaPromise<?, SagaMessage<K, V>> createInitialSagaPromise() {
         return sagaPromiseFactory.createSagaPromise(StepType.INITIAL, sagaStepMap.get(0));
     }
 
-    private SagaPromise<?, SagaMessage<T>> creataSagaPromise(Integer id, Set<Integer> dependencies, SagaPromise<?, SagaMessage<T>>[] sagaPromises) {
+    private SagaPromise<?, SagaMessage<K, V>> creataSagaPromise(Integer id, Set<Integer> dependencies, SagaPromise<?, SagaMessage<K, V>>[] sagaPromises) {
         StepType stepType = stepTypeMap.get(id);
 
         if (dependencies.size() == 1) {
@@ -73,25 +73,25 @@ public class DefaultSagaDefinition<T> implements SagaDefinition<T> {
         }
     }
 
-    private SagaPromise<?, SagaMessage<T>> createSingleDependencySagaPromise(Integer id, Set<Integer> dependencies, SagaPromise<?, SagaMessage<T>>[] sagaPromises, StepType stepType) {
-        SagaPromise<SagaMessage<T>, SagaMessage<T>> sagaPromise = sagaPromiseFactory.createSagaPromise(stepType, sagaStepMap.get(id));
+    private SagaPromise<?, SagaMessage<K, V>> createSingleDependencySagaPromise(Integer id, Set<Integer> dependencies, SagaPromise<?, SagaMessage<K, V>>[] sagaPromises, StepType stepType) {
+        SagaPromise<SagaMessage<K, V>, SagaMessage<K, V>> sagaPromise = sagaPromiseFactory.createSagaPromise(stepType, sagaStepMap.get(id));
 
         Integer dependencyId = dependencies.iterator().next();
-        SagaPromise<?, SagaMessage<T>> dependencySagaPromise = sagaPromises[dependencyId];
+        SagaPromise<?, SagaMessage<K, V>> dependencySagaPromise = sagaPromises[dependencyId];
 
         dependencySagaPromise.addListener(sagaPromise);
         return sagaPromise;
     }
 
-    private SagaPromise<?, SagaMessage<T>> createMultipleDependenciesSagaPromise(Integer id, Set<Integer> dependencies, SagaPromise<?, SagaMessage<T>>[] sagaPromises, StepType stepType) {
-        SagaPromiseAggregator<SagaMessage<T>, SagaMessage<T>> sagaPromiseAggregator = new SagaPromiseAggregator<>();
+    private SagaPromise<?, SagaMessage<K, V>> createMultipleDependenciesSagaPromise(Integer id, Set<Integer> dependencies, SagaPromise<?, SagaMessage<K, V>>[] sagaPromises, StepType stepType) {
+        SagaPromiseAggregator<SagaMessage<K, V>, SagaMessage<K, V>> sagaPromiseAggregator = new SagaPromiseAggregator<>();
 
         for (Integer dependencyId : dependencies) {
-            SagaPromise<?, SagaMessage<T>> dependencySagaPromise = sagaPromises[dependencyId];
+            SagaPromise<?, SagaMessage<K, V>> dependencySagaPromise = sagaPromises[dependencyId];
             sagaPromiseAggregator.add(dependencySagaPromise);
         }
 
-        SagaPromise<List<SagaMessage<T>>, SagaMessage<T>> aggregateSagaPromise = sagaPromiseFactory.createSagaPromise(stepType, aggregateSagaStepMap.get(id));
+        SagaPromise<List<SagaMessage<K, V>>, SagaMessage<K, V>> aggregateSagaPromise = sagaPromiseFactory.createSagaPromise(stepType, aggregateSagaStepMap.get(id));
         sagaPromiseAggregator.finish(aggregateSagaPromise);
         return aggregateSagaPromise;
     }
@@ -105,9 +105,9 @@ public class DefaultSagaDefinition<T> implements SagaDefinition<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        DefaultSagaDefinition<T> that;
+        DefaultSagaDefinition<K, V> that;
         try {
-            that = (DefaultSagaDefinition<T>) o;
+            that = (DefaultSagaDefinition<K, V>) o;
         } catch (ClassCastException e) {
             return false;
         }
@@ -119,14 +119,14 @@ public class DefaultSagaDefinition<T> implements SagaDefinition<T> {
                 stepTypeMap.equals(that.stepTypeMap);
     }
 
-    private <V> boolean compareStepMaps(Map<Integer, Map<StepType, V>> map1, Map<Integer, Map<StepType, V>> map2) {
+    private <T> boolean compareStepMaps(Map<Integer, Map<StepType, T>> map1, Map<Integer, Map<StepType, T>> map2) {
         if (!map1.keySet().equals(map2.keySet())) {
             return false;
         }
 
-        for (Map.Entry<Integer, Map<StepType, V>> map1Entry : map1.entrySet()) {
+        for (Map.Entry<Integer, Map<StepType, T>> map1Entry : map1.entrySet()) {
             Integer key = map1Entry.getKey();
-            Map<StepType, V> value = map1Entry.getValue();
+            Map<StepType, T> value = map1Entry.getValue();
             if (!value.keySet().equals(map2.get(key).keySet())) {
                 return false;
             }

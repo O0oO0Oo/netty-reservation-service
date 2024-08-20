@@ -2,6 +2,7 @@ package org.server.rsaga.saga.promise;
 
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import org.server.rsaga.saga.api.SagaMessage;
 
 import java.util.concurrent.ExecutionException;
 
@@ -62,11 +63,12 @@ import java.util.concurrent.ExecutionException;
  * @param <I> 실행 input 값
  * @param <R> 결과 값
  */
-public interface SagaPromise<I, R> extends GenericFutureListener<Future<I>> {
+public interface SagaPromise<I, R extends SagaMessage<?, ?>> extends GenericFutureListener<Future<I>> {
+
     /**
      * SagaPromise 의 값을 획득
      *
-     * @return
+     * @return R 갑 반환
      * @throws ExecutionException
      * @throws InterruptedException
      */
@@ -80,10 +82,16 @@ public interface SagaPromise<I, R> extends GenericFutureListener<Future<I>> {
     boolean isDone();
 
     void execute(I response);
+
     /**
      * 현재 SagaPromise 를 실패 상태로 지정
      */
-    void failure(Throwable cause);
+    void failure(R result, Throwable cause);
+
+    /**
+     * 다흔 SagaPromise 의 실패로 인한 실패 상태 저장
+     */
+    void cancelDueToOtherFailure(Throwable cause);
 
     /**
      * 현재 SagaPromise 가 완료, 실패하면 실행할 listener 추가

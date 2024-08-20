@@ -1,9 +1,7 @@
 package org.server.rsaga.saga.api;
 
-import org.server.rsaga.saga.message.SagaMessage;
+public interface SagaCoordinator<K, V> {
+    SagaMessage<K, V> start(SagaMessage<K, V> initSagaMessage);
 
-public interface SagaCoordinator<T> {
-    void start(SagaMessage<T> initSagaMessage);
-
-    void handleMessage(SagaMessage<T> sagaMessage);
+    void handleMessage(SagaMessage<K, V> sagaMessage);
 }
