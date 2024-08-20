@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 // TODO : Exception Handler 구현, ControllerAdvice
 @Slf4j
 public class ExceptionHandler extends ChannelHandlerAdapter {
-    
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if(cause instanceof InvocationTargetException invocationTargetException){
@@ -61,9 +61,10 @@ public class ExceptionHandler extends ChannelHandlerAdapter {
         }
 
         else {
+            // todo : 수정해야함.
             ErrorResponse errorResponse = ErrorResponse.of(
                     "000",
-                    "Internal Server Error."
+                    "Internal Server Error. " + cause.getMessage()
             );
 
             responseBuilder = responseBuilder
