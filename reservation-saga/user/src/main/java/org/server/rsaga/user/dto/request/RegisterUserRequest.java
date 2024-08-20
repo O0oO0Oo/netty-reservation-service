@@ -1,4 +1,4 @@
-package org.server.rsaga.user.dto;
+package org.server.rsaga.user.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
