@@ -1,0 +1,31 @@
+spring.application.name: rsaga.netty-core
+
+spring:
+  datasource:
+    url: jdbc:mysql://192.168.35.179:3306/reservation-saga
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: master
+    password: master
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql=true:
+logging:
+  level:
+    org.springframework.transaction: DEBUG
+    org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+    io.confluent.kafka.serializers.protobuf:
+      KafkaProtobufSerializerConfig: WARN
+      KafkaProtobufDeserializerConfig: WARN
+    org.apache.kafka.clients.admin.AdminClientConfig: WARN
+    org.apache.kafka.clients.producer.ProducerConfig: WARN
+    org.apache.kafka.clients.consumer.ConsumerConfig: WARN
+#    org.springframework.jdbc.datasource.DataSourceTransactionManager: DEBUG
+
+kafka:
+  bootstrap-servers: "192.168.35.5:9092,192.168.35.5:9093,192.168.35.5:9094"
+  schema-registry-url: "http://192.168.35.5:8081"

@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package org.server.rsaga.reservableitem;
+
+// item id 검증, 원하는 구매 수량이 인당 구매제한을 넘는지
+message VerifyReservableItemRequest{
+  int64 reservableItemId = 1;
+  int64 reservableTimeId = 2;
+  int64 businessId = 3;
+  int64 requestQuantity = 4;
+}

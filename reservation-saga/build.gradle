@@ -6,6 +6,9 @@ buildscript {
 
 	repositories {
 		mavenCentral()
+		maven {
+			url 'https://packages.confluent.io/maven/'
+		}
 	}
 
 	dependencies {
@@ -15,7 +18,7 @@ buildscript {
 }
 
 allprojects {
-	group 'org.server.reservation'
+	group 'org.server.rsaga'
 	version "1.0-SANPSHOT"
 
 	repositories {
@@ -24,12 +27,19 @@ allprojects {
 }
 
 subprojects {
-	apply plugin: 'java'
+	apply plugin: 'java-library'
 	apply plugin: 'org.springframework.boot'
 	apply plugin: 'io.spring.dependency-management'
 
 	sourceCompatibility = '17'
 	targetCompatibility = '17'
+
+	repositories {
+		mavenCentral()
+		maven {
+			url 'https://packages.confluent.io/maven/'
+		}
+	}
 
 	dependencies {
 		testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -37,6 +47,7 @@ subprojects {
 		implementation 'org.springframework.boot:spring-boot-starter-validation'
 		runtimeOnly 'com.mysql:mysql-connector-j'
 		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+		implementation 'io.hypersistence:hypersistence-tsid:2.0.0'
 		compileOnly 'org.projectlombok:lombok'
 		annotationProcessor 'org.projectlombok:lombok'
 
@@ -47,6 +58,8 @@ subprojects {
 				}
 
 		implementation 'io.netty:netty-all:latest.release'
+
+		implementation 'com.google.protobuf:protobuf-java:3.21.7'
 	}
 
 	tasks.named('test') {
