@@ -1,25 +1,25 @@
-package org.server.rsaga.business.controller;
+package org.server.rsaga.business.infra.api;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.RequiredArgsConstructor;
-import org.server.rsaga.business.dto.ModifyBusinessRequest;
-import org.server.rsaga.business.dto.RegisterBusinessRequest;
-import org.server.rsaga.business.service.BusinessService;
+import org.server.rsaga.business.dto.request.ModifyBusinessRequest;
+import org.server.rsaga.business.dto.request.RegisterBusinessRequest;
+import org.server.rsaga.business.app.BusinessApiService;
 import org.server.rsaga.common.dto.FullHttpResponseBuilder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/business")
+@RequestMapping("/businesses")
 @RequiredArgsConstructor
 public class BusinessController {
-    private final BusinessService businessService;
+    private final BusinessApiService businessApiService;
 
     @GetMapping("/{business_id}")
     public FullHttpResponse findBusiness(@PathVariable("business_id") Long businessId) {
         return FullHttpResponseBuilder.builder()
                 .body(
-                        businessService.findBusiness(businessId)
+                        businessApiService.findBusiness(businessId)
                 )
                 .statusCode(HttpResponseStatus.OK)
                 .build();
@@ -29,7 +29,7 @@ public class BusinessController {
     public FullHttpResponse registerBusiness(@RequestBody RegisterBusinessRequest request) {
         return FullHttpResponseBuilder.builder()
                 .body(
-                        businessService.registerBusiness(request)
+                        businessApiService.registerBusiness(request)
                 )
                 .statusCode(HttpResponseStatus.OK)
                 .build();
@@ -39,7 +39,7 @@ public class BusinessController {
     public FullHttpResponse modifyBusiness(@PathVariable("business_id") Long businessId, @RequestBody ModifyBusinessRequest request) {
         return FullHttpResponseBuilder.builder()
                 .body(
-                        businessService.modifyBusiness(businessId, request)
+                        businessApiService.modifyBusiness(businessId, request)
                 )
                 .statusCode(HttpResponseStatus.OK)
                 .build();
@@ -47,7 +47,7 @@ public class BusinessController {
 
     @DeleteMapping("/{business_id}")
     public FullHttpResponse deleteBusiness(@PathVariable("business_id") Long businessId) {
-        businessService.deleteBusiness(businessId);
+        businessApiService.deleteBusiness(businessId);
         return FullHttpResponseBuilder.builder()
                 .body("Deleted")
                 .statusCode(HttpResponseStatus.OK)
