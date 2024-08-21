@@ -4,14 +4,14 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.server.rsaga.common.domain.Money;
 import org.server.rsaga.common.domain.BaseTime;
+import org.server.rsaga.common.domain.ForeignKey;
+import org.server.rsaga.common.domain.Money;
 import org.server.rsaga.common.event.BusinessValidationEvent;
 import org.server.rsaga.common.event.EventPublisher;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Getter
@@ -29,13 +29,15 @@ public class ReservableItem {
     private Long maxQuantityPerUser;
 
     @Embedded
+    @AttributeOverride(name = "amount", column = @Column(name = "price", nullable = false))
     private Money price;
 
     @OneToMany(mappedBy = "reservableItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReservableTime> reservableTimes;
 
-    @Column(nullable = false)
-    private Long businessId;
+    @Embedded
+    @AttributeOverride(name = "id", column = @Column(name = "business_id", nullable = false))
+    private ForeignKey businessId;
 
     @Column(nullable = false)
     private boolean isItemAvailable;
@@ -60,7 +62,7 @@ public class ReservableItem {
         this.price = price;
 
         validateBusinessId(businessId);
-        this.businessId = businessId;
+        this.businessId = new ForeignKey(businessId);
 
         this.isItemAvailable = isItemAvailable;
     }
@@ -85,6 +87,10 @@ public class ReservableItem {
             }
         }
         return isItemAvailable() && isTimeAvailable;
+    }
+
+    public long getBusinessId() {
+        return businessId.getId();
     }
 
     /**

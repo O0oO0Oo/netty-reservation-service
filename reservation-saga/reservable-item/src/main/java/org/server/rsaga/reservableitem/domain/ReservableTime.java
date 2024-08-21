@@ -16,7 +16,6 @@ public class ReservableTime {
     @Column(name = "reservable_time_id", nullable = false)
     private Long id;
 
-    @Column(nullable = false)
     @Embedded
     private Stock stock;
 

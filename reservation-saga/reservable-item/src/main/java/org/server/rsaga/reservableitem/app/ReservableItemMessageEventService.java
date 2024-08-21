@@ -1,6 +1,7 @@
 package org.server.rsaga.reservableitem.app;
 
 import lombok.RequiredArgsConstructor;
+import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.exception.CustomException;
 import org.server.rsaga.common.exception.ErrorCode;
 import org.server.rsaga.messaging.message.Message;
@@ -30,7 +31,7 @@ public class ReservableItemMessageEventService {
 
         ReservableItem reservableItem = reservableItemCustomRepository.findByIdAndBusinessIdAndReservableTimeIdOrElseThrow(
                 reservableItemId,
-                businessId,
+                new ForeignKey(businessId),
                 reservableTimeId
         );
 

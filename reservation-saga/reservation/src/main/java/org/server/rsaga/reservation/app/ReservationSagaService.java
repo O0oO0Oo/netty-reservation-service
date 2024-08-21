@@ -6,7 +6,7 @@ import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.messaging.schema.reservation.CreateReservationEventBuilder;
 import org.server.rsaga.reservation.CreateReservationEvent;
 import org.server.rsaga.reservation.CreateReservationFinalResponseOuterClass;
-import org.server.rsaga.reservation.dto.request.RegisterReservationRequest;
+import org.server.rsaga.reservation.dto.request.CreateReservationRequest;
 import org.server.rsaga.reservation.dto.response.ReservationDetailsResponse;
 import org.server.rsaga.saga.api.SagaCoordinator;
 import org.server.rsaga.saga.api.SagaMessage;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class ReservationSagaService {
     private final SagaCoordinator<String, CreateReservationEvent> sagaCoordinator;
 
-    public ReservationDetailsResponse createReservation(RegisterReservationRequest request) {
+    public ReservationDetailsResponse createReservation(CreateReservationRequest request) {
         TSID correlationId = TSID.fast();
 
         // TSID key
@@ -30,7 +30,12 @@ public class ReservationSagaService {
         CreateReservationEvent createReservationEvent = CreateReservationEventBuilder
                 .builder()
                 .setRegisterReservationInitRequest(
-                        request.userId(), request.businessId(), request.reservableItemId(), request.reservableTimeId(), request.requestQuantity()
+                        request.paymentType().name(),
+                        request.userId(),
+                        request.businessId(),
+                        request.reservableItemId(),
+                        request.reservableTimeId(),
+                        request.requestQuantity()
                 )
                 .build();
 

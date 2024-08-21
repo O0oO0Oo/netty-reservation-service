@@ -7,9 +7,10 @@ public enum MessagingTopics {
     CREATE_RESERVATION_VERIFY_RESERVABLEITEM("create-reservation-verify-reservableitem"),
     CREATE_RESERVATION_CHECK_RESERVATION_LIMIT("create-reservation-check-reservation-limit"),
     CREATE_RESERVATION_UPDATE_RESERVABLEITEM_QUANTITY("create-reservation-update-reservableitem-quantity"),
-    CREATE_RESERVATION_UPDATE_USER_BALANCE("create-reservation-update-user-balance"),
+    CREATE_RESERVATION_PAYMENT("create-reservation-payment"),
     CREATE_RESERVATION_FINAL_STEP("create-reservation-final-step"),
     CREATE_RESERVATION_RESPONSE("create-reservation-response"),
+
 
     // Modify Reservation
 

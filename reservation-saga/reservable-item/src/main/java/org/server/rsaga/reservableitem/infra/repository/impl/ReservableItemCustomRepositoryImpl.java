@@ -1,6 +1,7 @@
 package org.server.rsaga.reservableitem.infra.repository.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.exception.CustomException;
 import org.server.rsaga.common.exception.ErrorCode;
 import org.server.rsaga.reservableitem.domain.ReservableItem;
@@ -13,8 +14,11 @@ import org.springframework.stereotype.Repository;
 public class ReservableItemCustomRepositoryImpl implements ReservableItemCustomRepository {
     private final ReservableItemJpaRepository reservableItemJpaRepository;
 
-    public ReservableItem findReservableItemByIdAndBusinessIdOrElseThrow(Long reservableItemId, Long businessId) {
-        return reservableItemJpaRepository.findByIdAndBusinessId(reservableItemId, businessId)
+    public ReservableItem findReservableItemByIdAndBusinessIdOrElseThrow(Long reservableItemId, ForeignKey businessId) {
+        return reservableItemJpaRepository.findByIdAndBusinessId(
+                        reservableItemId,
+                        businessId
+                )
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.RESERVABLE_ITEM_NOT_FOUND)
                 );
@@ -29,7 +33,7 @@ public class ReservableItemCustomRepositoryImpl implements ReservableItemCustomR
     }
 
     @Override
-    public ReservableItem findByIdAndBusinessIdAndReservableTimeIdOrElseThrow(Long itemId, Long businessId, Long timeId) {
+    public ReservableItem findByIdAndBusinessIdAndReservableTimeIdOrElseThrow(Long itemId, ForeignKey businessId, Long timeId) {
         return reservableItemJpaRepository.findReservableItemsWithTimes(
                 itemId, businessId, timeId)
                 .orElseThrow(

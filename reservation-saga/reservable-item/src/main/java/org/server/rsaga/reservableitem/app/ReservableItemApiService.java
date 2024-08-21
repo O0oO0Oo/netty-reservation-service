@@ -2,6 +2,7 @@ package org.server.rsaga.reservableitem.app;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.domain.Money;
 import org.server.rsaga.reservableitem.domain.ReservableItem;
 import org.server.rsaga.reservableitem.domain.ReservableTime;
@@ -77,7 +78,10 @@ public class ReservableItemApiService {
         ModifyReservableTime reservableTimeDto = request.reservableTime();
 
         ReservableItem reservableItem =
-                reservableItemCustomRepository.findReservableItemByIdAndBusinessIdOrElseThrow(reservableItemId, businessId);
+                reservableItemCustomRepository.findReservableItemByIdAndBusinessIdOrElseThrow(
+                        reservableItemId,
+                        new ForeignKey(businessId)
+                );
 
         reservableItem
                 .changeName(
@@ -109,7 +113,10 @@ public class ReservableItemApiService {
     public void deleteReservableItem(Long reservableItemId, DeleteReservableItemRequest request) {
         Long businessId = request.businessId();
 
-        ReservableItem reservableItem = reservableItemCustomRepository.findReservableItemByIdAndBusinessIdOrElseThrow(reservableItemId, businessId);
+        ReservableItem reservableItem = reservableItemCustomRepository.findReservableItemByIdAndBusinessIdOrElseThrow(
+                reservableItemId,
+                new ForeignKey(businessId)
+        );
         reservableItem.makeUnavailable();
     }
 }
