@@ -1,6 +1,7 @@
 package org.server.rsaga.reservation.infra.repository.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.exception.CustomException;
 import org.server.rsaga.common.exception.ErrorCode;
 import org.server.rsaga.reservation.domain.Reservation;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class ReserevationCustomRepositoryImpl implements ReservationCustomRepository {
+public class ReservationCustomRepositoryImpl implements ReservationCustomRepository {
     private final ReservationJpaRepository reservationJpaRepository;
 
     @Override
@@ -22,7 +23,7 @@ public class ReserevationCustomRepositoryImpl implements ReservationCustomReposi
     }
 
     @Override
-    public Reservation findReservationByIdAndUserIdOrElseThrow(long reservationId, long userId) {
+    public Reservation findReservationByIdAndUserIdOrElseThrow(long reservationId, ForeignKey userId) {
         return reservationJpaRepository.findByIdAndUserId(reservationId, userId)
                 .orElseThrow(
                         () -> new CustomException(ErrorCode.RESERVATION_NOT_FOUND)

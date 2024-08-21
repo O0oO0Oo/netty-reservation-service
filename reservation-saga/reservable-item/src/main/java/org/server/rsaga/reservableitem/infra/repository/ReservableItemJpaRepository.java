@@ -1,5 +1,6 @@
 package org.server.rsaga.reservableitem.infra.repository;
 
+import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.reservableitem.domain.ReservableItem;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,9 +13,9 @@ import java.util.Optional;
 public interface ReservableItemJpaRepository extends JpaRepository<ReservableItem, Long> {
 
     @Query("SELECT r FROM ReservableItem r JOIN FETCH r.reservableTimes WHERE r.businessId = :businessId")
-    List<ReservableItem> findByBusinessIdWithTimes(@Param("businessId") Long businessId);
+    List<ReservableItem> findByBusinessIdWithTimes(@Param("businessId") ForeignKey businessId);
     @EntityGraph(attributePaths = {"reservableTimes"})
-    Optional<ReservableItem> findByIdAndBusinessId(Long id, Long businessId);
+    Optional<ReservableItem> findByIdAndBusinessId(Long id, ForeignKey businessId);
 
     // todo 쿼리 개선
     @Query("SELECT ri FROM ReservableItem ri " +
@@ -24,7 +25,7 @@ public interface ReservableItemJpaRepository extends JpaRepository<ReservableIte
             "AND rt.id = :timeId")
     Optional<ReservableItem> findReservableItemsWithTimes(
             @Param("itemId") Long itemId,
-            @Param("businessId") Long businessId,
+            @Param("businessId") ForeignKey businessId,
             @Param("timeId") Long timeId);
 
     @Query("SELECT r FROM ReservableItem r JOIN FETCH r.reservableTimes t WHERE r.id = :reservableItemId AND t.id = :timeId")

@@ -1,6 +1,7 @@
 package org.server.rsaga.reservation.app;
 
 import lombok.RequiredArgsConstructor;
+import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.reservation.dto.request.FindReservationRequest;
 import org.server.rsaga.reservation.dto.response.ReservationDetailsResponse;
 import org.server.rsaga.reservation.infra.repository.ReservationCustomRepository;
@@ -19,14 +20,19 @@ public class ReservationApiService {
     @Transactional(readOnly = true)
     public List<ReservationDetailsResponse> findReservationList(FindReservationRequest request) {
         return ReservationDetailsResponse.of(
-                reservationJpaRepository.findByUserId(request.userId())
+                reservationJpaRepository.findByUserId(
+                        new ForeignKey(request.userId())
+                )
         );
     }
 
     @Transactional(readOnly = true)
     public ReservationDetailsResponse findReservation(FindReservationRequest request, Long reservationId) {
         return ReservationDetailsResponse.of(
-                reservationCustomRepository.findReservationByIdAndUserIdOrElseThrow(reservationId, request.userId())
+                reservationCustomRepository.findReservationByIdAndUserIdOrElseThrow(
+                        reservationId,
+                        new ForeignKey(request.userId())
+                )
         );
     }
 

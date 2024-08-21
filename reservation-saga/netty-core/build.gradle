@@ -4,6 +4,7 @@ dependencies {
     implementation project(":reservable-item")
     implementation project(":reservation")
     implementation project(":user")
+    implementation project(":payment")
 
     implementation "commons-beanutils:commons-beanutils:1.9.4"
 }

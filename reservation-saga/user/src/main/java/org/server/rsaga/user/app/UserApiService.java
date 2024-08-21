@@ -30,10 +30,14 @@ public class UserApiService {
         userCustomRepository.validateUniqueUserName(request.name());
 
         User user = new User(
-                request.name(),
-                new Money(0L)
+                request.name()
         );
-        return UserDetailsResponse.of(userJpaRepository.save(user));
+
+        User saved = userJpaRepository.save(user);
+        
+        // 유저 지갑 생성
+        saved.createWallet();
+        return UserDetailsResponse.of(saved);
     }
 
     @Transactional
@@ -45,33 +49,6 @@ public class UserApiService {
         user
                 .changeName(
                         request.name()
-                );
-        return UserDetailsResponse.of(user);
-    }
-
-    @Transactional
-    public UserDetailsResponse deposit(Long userId, ModifyUserBalanceRequest request) {
-        User user = userCustomRepository.findByIdOrElseThrow(userId);
-
-        user
-                .addBalance(
-                        new Money(
-                                request.money()
-                        )
-                );
-        return UserDetailsResponse.of(user);
-    }
-
-
-    @Transactional
-    public UserDetailsResponse withdraw(Long userId, ModifyUserBalanceRequest request) {
-        User user = userCustomRepository.findByIdOrElseThrow(userId);
-
-        user
-                .subtractBalance(
-                        new Money(
-                                request.money()
-                        )
                 );
         return UserDetailsResponse.of(user);
     }

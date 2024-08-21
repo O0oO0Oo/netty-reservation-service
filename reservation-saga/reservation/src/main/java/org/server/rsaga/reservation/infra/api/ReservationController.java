@@ -6,7 +6,7 @@ import org.server.rsaga.common.dto.FullHttpResponseBuilder;
 import org.server.rsaga.reservation.app.ReservationSagaService;
 import org.server.rsaga.reservation.dto.request.FindReservationRequest;
 import org.server.rsaga.reservation.dto.request.ModifyReservationRequest;
-import org.server.rsaga.reservation.dto.request.RegisterReservationRequest;
+import org.server.rsaga.reservation.dto.request.CreateReservationRequest;
 import org.server.rsaga.reservation.app.ReservationApiService;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +36,7 @@ public class ReservationController {
     }
 
     @PostMapping
-    public FullHttpResponse createReservation(@RequestBody RegisterReservationRequest request) {
+    public FullHttpResponse createReservation(@RequestBody CreateReservationRequest request) {
         return FullHttpResponseBuilder.builder()
                 .body(
                         reservationSagaService.createReservation(request)

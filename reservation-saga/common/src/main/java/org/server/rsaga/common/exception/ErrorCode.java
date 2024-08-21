@@ -34,8 +34,13 @@ public enum  ErrorCode {
     RESERVATION_DATE_PASSED(HttpResponseStatus.BAD_REQUEST, "R004", "날짜가 지난 상품은 예약이나 상태 변경이 불가능 합니다."),
     SAME_STATUS(HttpResponseStatus.BAD_REQUEST, "R005", "변경하려는 값이 같습니다."),
     MAX_QUANTITY_EXCEEDED(HttpResponseStatus.BAD_REQUEST, "R006", "최대 구매 수량을 초과했습니다."),
-    RESERVATION_ITEM_IS_NOT_AVAILABLE(HttpResponseStatus.BAD_REQUEST, "R007", "종료된 상품은 예약 불가능 합니다.")
-    ;
+    RESERVATION_ITEM_IS_NOT_AVAILABLE(HttpResponseStatus.BAD_REQUEST, "R007", "종료된 상품은 예약 불가능 합니다."),
+
+    // wallet
+    WALLET_NOT_FOUND(HttpResponseStatus.NOT_FOUND, "W001", "지갑을 찾을 수 없습니다."),
+
+    // payment
+    PAYMENT_NOT_FOUND(HttpResponseStatus.NOT_FOUND, "P001", "결제 기록을 찾을 수 없습니다.");
 
 
     private final HttpResponseStatus status;

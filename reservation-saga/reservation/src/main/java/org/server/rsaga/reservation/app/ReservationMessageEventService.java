@@ -1,6 +1,7 @@
 package org.server.rsaga.reservation.app;
 
 import lombok.RequiredArgsConstructor;
+import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.exception.CustomException;
 import org.server.rsaga.common.exception.ErrorCode;
 import org.server.rsaga.messaging.message.Message;
@@ -52,8 +53,8 @@ public class ReservationMessageEventService {
 
         // 초과하는지 검사.
         Integer reservedQuantity = reservationJpaRepository.findSumQuantityByUserIdAndReservableItemIdAndReserved(
-                userId,
-                reservableItemId
+                new ForeignKey(userId),
+                new ForeignKey(reservableItemId)
         );
 
         if (maxQuantityPerUser < (reservedQuantity + requestQuantity)) {

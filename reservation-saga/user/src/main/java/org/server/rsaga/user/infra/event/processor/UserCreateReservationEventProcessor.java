@@ -34,21 +34,4 @@ public class UserCreateReservationEventProcessor {
                 KafkaMessageProcessorType.MULTI_THREADED
         );
     }
-
-    @Bean
-    public KafkaMessageProcessor<String, CreateReservationEvent> createReservationEventUpdateUserBalanceKafkaMessageProcessor() {
-        Properties config = new Properties();
-        config.put("producer.topic", MessagingTopics.CREATE_RESERVATION_RESPONSE.name());
-        config.put("dead.letter.topic", MessagingTopics.CREATE_RESERVATION_RESPONSE.name());
-
-        config.put("group.id", "create-reservation.user.update-balance");
-        config.put("consumer.topic", MessagingTopics.CREATE_RESERVATION_UPDATE_USER_BALANCE.name());
-        config.put("specific.protobuf.value.type", CreateReservationEvent.class.getName());
-
-        return processorFactory.create(
-                config,
-                userMessageEventService::consumeUpdateUserBalanceEvent,
-                KafkaMessageProcessorType.MULTI_THREADED
-        );
-    }
 }

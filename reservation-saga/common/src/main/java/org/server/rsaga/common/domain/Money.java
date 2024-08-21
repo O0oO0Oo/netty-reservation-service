@@ -12,7 +12,7 @@ public class Money {
 
     public Money(Long amount) {
         if (amount == null || amount < 0) {
-            throw new IllegalArgumentException("The money amount must be a negative value.");
+            throw new IllegalArgumentException("The money amount should be a negative value.");
         }
         this.amount = amount;
     }
@@ -24,7 +24,7 @@ public class Money {
     public Money subtract(Money other) {
         long calculatedAmount = this.amount - other.amount;
         if (calculatedAmount < 0) {
-            throw new IllegalArgumentException("The calculated money amount must not be a negative value.");
+            throw new IllegalArgumentException("The calculated money amount should not be a negative value.");
         }
         return new Money(calculatedAmount);
     }

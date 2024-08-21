@@ -1,0 +1,6 @@
+dependencies {
+    implementation project(":common")
+    implementation project(":saga-orchestrator")
+    implementation project(":messaging-schema")
+    implementation project(":messaging-adapter")
+}

@@ -3,13 +3,13 @@ package org.server.rsaga.messaging.schema.reservation;
 import jakarta.validation.constraints.NotNull;
 import org.server.rsaga.business.VerifyBusinessRequestOuterClass;
 import org.server.rsaga.business.VerifyBusinessResponseOuterClass;
+import org.server.rsaga.payment.PaymentRequestOuterClass;
+import org.server.rsaga.payment.PaymentResponseOuterClass;
 import org.server.rsaga.reservableitem.UpdateReservableItemQuantityRequestOuterClass;
 import org.server.rsaga.reservableitem.UpdateReservableItemQuantityResponseOuterClass;
 import org.server.rsaga.reservableitem.VerifyReservableItemRequestOuterClass;
 import org.server.rsaga.reservableitem.VerifyReservableItemResponseOuterClass;
 import org.server.rsaga.reservation.*;
-import org.server.rsaga.user.UpdateUserBalanceRequestOuterClass;
-import org.server.rsaga.user.UpdateUserBalanceResponseOuterClass;
 import org.server.rsaga.user.VerifyUserRequestOuterClass;
 import org.server.rsaga.user.VerifyUserResponseOuterClass;
 
@@ -22,6 +22,7 @@ public class CreateReservationEventBuilder {
 
     // init event
     public CreateReservationEventBuilder setRegisterReservationInitRequest(
+            String paymentType,
             long userId,
             long businessId,
             long reservableItemId,
@@ -30,6 +31,7 @@ public class CreateReservationEventBuilder {
     ) {
         CreateReservationInitRequestOuterClass.CreateReservationInitRequest createReservationInitRequest = CreateReservationInitRequestOuterClass.CreateReservationInitRequest
                 .newBuilder()
+                .setPaymentType(paymentType)
                 .setUserId(userId)
                 .setBusinessId(businessId)
                 .setReservableItemId(reservableItemId)
@@ -167,6 +169,7 @@ public class CreateReservationEventBuilder {
                 .setUpdateReservableItemQuantity(updateReservableItemQuantityRequest);
         return this;
     }
+
     public CreateReservationEventBuilder setUpdateReservableItemQuantityResponse(
             long reservableItemId
     ) {
@@ -179,27 +182,33 @@ public class CreateReservationEventBuilder {
         return this;
     }
 
-    // user balance 감소
-    public CreateReservationEventBuilder setUpdateUserBalanceRequest(
+    public CreateReservationEventBuilder setPaymentRequest(
+            String paymentType,
             long userId,
+            long reservationId,
             long amount
     ) {
-        UpdateUserBalanceRequestOuterClass.UpdateUserBalanceRequest updateUserBalanceRequest = UpdateUserBalanceRequestOuterClass.UpdateUserBalanceRequest.newBuilder()
+        PaymentRequestOuterClass.PaymentRequest paymentRequest = PaymentRequestOuterClass.PaymentRequest.newBuilder()
+                .setPaymentType(paymentType)
                 .setUserId(userId)
+                .setReservationId(reservationId)
                 .setAmount(amount)
                 .build();
+
         builder
-                .setUpdateUserBalance(updateUserBalanceRequest);
+                .setPay(paymentRequest);
         return this;
     }
-    public CreateReservationEventBuilder setUpdateUserBalanceResponse(
+
+    public CreateReservationEventBuilder setPaymentResponse(
             long userId
     ) {
-        UpdateUserBalanceResponseOuterClass.UpdateUserBalanceResponse updateUserBalanceResponse = UpdateUserBalanceResponseOuterClass.UpdateUserBalanceResponse.newBuilder()
+        PaymentResponseOuterClass.PaymentResponse paymentResponse = PaymentResponseOuterClass.PaymentResponse.newBuilder()
                 .setUserId(userId)
                 .build();
+
         builder
-                .setUpdatedUserBalance(updateUserBalanceResponse);
+                .setPaid(paymentResponse);
         return this;
     }
 

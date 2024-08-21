@@ -2,16 +2,16 @@ package org.server.rsaga.reservation.domain;
 
 import io.hypersistence.tsid.TSID;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.server.rsaga.common.domain.BaseTime;
+import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.reservation.domain.constant.ReservationStatus;
-
-import java.time.Instant;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Reservation {
 
     /**
@@ -21,17 +21,21 @@ public class Reservation {
     @Column(name = "reservation_id", nullable = false)
     private Long id;
 
-    @Column(name = "business_id", nullable = false)
-    private Long businessId;
+    @Embedded
+    @AttributeOverride(name = "id", column = @Column(name = "business_id", nullable = false))
+    private ForeignKey businessId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Embedded
+    @AttributeOverride(name = "id", column = @Column(name = "user_id", nullable = false))
+    private ForeignKey userId;
 
-    @Column(name = "reservable_item_Id", nullable = false)
-    private Long reservableItemId;
+    @Embedded
+    @AttributeOverride(name = "id", column = @Column(name = "reservable_item_id", nullable = false))
+    private ForeignKey reservableItemId;
 
-    @Column(name = "reservable_time_Id", nullable = false)
-    private Long reservableTimeId;
+    @Embedded
+    @AttributeOverride(name = "id", column = @Column(name = "reservable_time_id", nullable = false))
+    private ForeignKey reservableTimeId;
 
     @Column(nullable = false)
     private Long quantity;
@@ -47,17 +51,13 @@ public class Reservation {
         checkTsid(id);
         this.id = id;
 
-        checkNull(businessId);
-        this.businessId = businessId;
+        this.businessId = new ForeignKey(businessId);
 
-        checkNull(userId);
-        this.userId = userId;
+        this.userId = new ForeignKey(userId);
 
-        checkNull(reservableItemId);
-        this.reservableItemId = reservableItemId;
+        this.reservableItemId = new ForeignKey(reservableItemId);
 
-        checkNull(reservableTimeId);
-        this.reservableTimeId = reservableTimeId;
+        this.reservableTimeId = new ForeignKey(reservableTimeId);
 
         checkQuantity(quantity);
         this.quantity = quantity;
@@ -65,8 +65,28 @@ public class Reservation {
         this.reservationStatus = ReservationStatus.PENDING;
     }
 
+    /**
+     * ---------------------- getter ----------------------
+     */
+
     public long getId() {
         return this.id;
+    }
+
+    public long getBusinessId() {
+        return businessId.getId();
+    }
+
+    public long getUserId() {
+        return userId.getId();
+    }
+
+    public long getReservableItemId() {
+        return reservableItemId.getId();
+    }
+
+    public long getReservableTimeId() {
+        return reservableTimeId.getId();
     }
 
     /**

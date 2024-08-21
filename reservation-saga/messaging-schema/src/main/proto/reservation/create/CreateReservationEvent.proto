@@ -27,9 +27,9 @@ import "reservation/create/response/CheckReservationLimitResponse.proto";
 import "reservation/create/request/UpdateReservableItemQuantityRequest.proto";
 import "reservation/create/response/UpdateReservableItemQuantityResponse.proto";
 
-// User 잔액 증감
-import "reservation/create/request/UpdateUserBalanceRequest.proto";
-import "reservation/create/response/UpdateUserBalanceResponse.proto";
+// payment 결제
+import "reservation/create/request/PaymentRequest.proto";
+import "reservation/create/response/PaymentResponse.proto";
 
 // Reservation 요청 마지막
 import "reservation/create/request/CreateReservationFinalRequest.proto";
@@ -54,8 +54,8 @@ message CreateReservationEvent{
     org.server.rsaga.reservableitem.UpdateReservableItemQuantityRequest updateReservableItemQuantity = 11;
     org.server.rsaga.reservableitem.UpdateReservableItemQuantityResponse updatedReservableItemQuantity = 12;
 
-    org.server.rsaga.user.UpdateUserBalanceRequest updateUserBalance = 13;
-    org.server.rsaga.user.UpdateUserBalanceResponse updatedUserBalance = 14;
+    org.server.rsaga.payment.PaymentRequest pay = 13;
+    org.server.rsaga.payment.PaymentResponse paid = 14;
 
     org.server.rsaga.reservation.CreateReservationFinalRequest createReservationFinal = 15;
     org.server.rsaga.reservation.CreateReservationFinalResponse createdReservationFinal = 16;

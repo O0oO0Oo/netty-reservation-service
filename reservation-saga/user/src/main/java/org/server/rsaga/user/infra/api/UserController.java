@@ -46,27 +46,6 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping("/{user_id}/deposit")
-    public FullHttpResponse deposit(@PathVariable("user_id") Long userId, @RequestBody ModifyUserBalanceRequest request) {
-        return FullHttpResponseBuilder.builder()
-                .body(
-                        userApiService.deposit(userId, request)
-                )
-                .statusCode(HttpResponseStatus.OK)
-                .build();
-    }
-
-    @PutMapping("/{user_id}/withdraw")
-    public FullHttpResponse withdraw(@PathVariable("user_id") Long userId, @RequestBody ModifyUserBalanceRequest request) {
-        return FullHttpResponseBuilder.builder()
-                .body(
-                        userApiService.withdraw(userId, request)
-                )
-                .statusCode(HttpResponseStatus.OK)
-                .build();
-    }
-
-
     @DeleteMapping("/{user_id}")
     public FullHttpResponse deleteUser(@PathVariable("user_id") Long userId) {
         userApiService.deleteUse(userId);

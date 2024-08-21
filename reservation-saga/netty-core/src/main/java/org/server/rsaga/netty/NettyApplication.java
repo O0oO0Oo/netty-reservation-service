@@ -12,7 +12,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "org.server.rsaga.business.infra.repository",
         "org.server.rsaga.reservableitem.infra.repository",
         "org.server.rsaga.reservation.infra.repository",
-        "org.server.rsaga.user.infra.repository"
+        "org.server.rsaga.user.infra.repository",
+        "org.server.rsaga.payment.infra.repository"
 })
 public class NettyApplication {
     public static void main(String[] args) {

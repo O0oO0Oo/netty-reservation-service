@@ -30,27 +30,4 @@ public class UserMessageEventService {
                 .build();
         return SagaMessage.of(key, responsePayload, message.metadata(), Message.Status.RESPONSE_SUCCESS);
     }
-
-    @Transactional
-    public Message<String, CreateReservationEvent> consumeUpdateUserBalanceEvent(Message<String, CreateReservationEvent> message) {
-        CreateReservationEvent requestPayload = message.payload();
-        long userId = requestPayload.getUpdateUserBalance().getUserId();
-        long requestAmount = requestPayload.getUpdateUserBalance().getAmount();
-
-        User user = userCustomRepository.findByIdOrElseThrow(userId);
-
-        if (requestAmount < 0) {
-            user.subtractBalance(new Money(-requestAmount));
-        }
-        else {
-            user.addBalance(new Money(requestAmount));
-        }
-
-        String key = String.valueOf(user.getId());
-        CreateReservationEvent responsePayload = CreateReservationEventBuilder
-                .builder()
-                .setUpdateUserBalanceResponse(userId)
-                .build();
-        return SagaMessage.of(key, responsePayload, message.metadata(), Message.Status.RESPONSE_SUCCESS);
-    }
 }
