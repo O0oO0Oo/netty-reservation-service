@@ -1,15 +1,17 @@
 package org.server.rsaga.user.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.server.rsaga.common.domain.BaseTime;
-import org.server.rsaga.common.domain.Money;
+import org.server.rsaga.common.event.CreateWalletEvent;
+import org.server.rsaga.common.event.EventPublisher;
 
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,23 +21,12 @@ public class User {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false)
-    private Money balance;
-
     @Embedded
     private BaseTime baseTime;
 
-    public User(String name, Money balance) {
+    public User(String name) {
         checkName(name);
         this.name = name;
-        this.balance = balance;
-    }
-
-    /**
-     * ---------------------- getter ----------------------
-     */
-    public long getBalance() {
-        return this.balance.getAmount();
     }
 
     /**
@@ -48,16 +39,10 @@ public class User {
         }
     }
 
-    public void addBalance(Money newMoney) {
-        if(newMoney != null) {
-            this.balance = this.balance.add(newMoney);
-        }
-    }
-
-    public void subtractBalance(Money newMoney) {
-        if (newMoney != null) {
-            this.balance = this.balance.subtract(newMoney);
-        }
+    public void createWallet() {
+        EventPublisher.publish(
+                new CreateWalletEvent(this.id)
+        );
     }
 
     /**

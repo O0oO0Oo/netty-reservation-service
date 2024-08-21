@@ -45,7 +45,7 @@ public class CreateReservationSagaConfig {
         topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_VERIFY_BUSINESS.name(), 3, (short) 3);
         topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_VERIFY_RESERVABLEITEM.name(), 3, (short) 3);
         topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_CHECK_RESERVATION_LIMIT.name(), 3, (short) 3);
-        topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_UPDATE_USER_BALANCE.name(), 3, (short) 3);
+        topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_PAYMENT.name(), 3, (short) 3);
         topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_UPDATE_RESERVABLEITEM_QUANTITY.name(), 3, (short) 3);
         topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_FINAL_STEP.name(), 3, (short) 3);
 
@@ -303,27 +303,34 @@ public class CreateReservationSagaConfig {
 
 
                 /**
-                 * ---------- 유저 잔액 감소 ----------
+                 * ---------- 결제 ----------
                  * key
                  * userId
                  *
                  * payload
-                 * {@link org.server.rsaga.user.UpdateUserBalanceRequestOuterClass.UpdateUserBalanceRequest}
+                 * {@link org.server.rsaga.payment.PaymentRequestOuterClass.PaymentRequest}
                  *
                  * requestQuantity (구매 요청 수) * price(가격) 만큼 유저의 잔액을 감소시킨다.
                  */
-                .addStep("updateUserBalance", MessagingTopics.CREATE_RESERVATION_UPDATE_USER_BALANCE.name(),
+                .addStep("payment", MessagingTopics.CREATE_RESERVATION_PAYMENT.name(),
                         (messages) ->
                         {
-                            // payload, key
+                            // payload
                             String key = null;
 
+                            // payload
                             long userId = 0;
                             long price = 0;
                             long requestQuantity = 0;
+                            long reservationId = 0;
+                            String paymentType = null;
 
                             for (SagaMessage<String, CreateReservationEvent> message : messages) {
                                 CreateReservationEvent beforePayload = message.payload();
+
+                                if (beforePayload.hasCheckedReservation()) {
+                                    reservationId = beforePayload.getCheckedReservation().getReservationId();
+                                }
 
                                 if (beforePayload.hasVerifiedUser()) {
                                     userId = beforePayload.getVerifiedUser().getUserId();
@@ -338,14 +345,15 @@ public class CreateReservationSagaConfig {
 
                                 if (beforePayload.hasCreateReservationInit()) {
                                     requestQuantity = beforePayload.getCreateReservationInit().getRequestQuantity();
+                                    paymentType = beforePayload.getCreateReservationInit().getPaymentType();
                                 }
                             }
 
                             CreateReservationEvent payload = CreateReservationEventBuilder
                                     .builder()
                                     // 차감이므로 -
-                                    .setUpdateUserBalanceRequest(
-                                            userId, -(price * requestQuantity)
+                                    .setPaymentRequest(
+                                            paymentType, userId, reservationId, -(price * requestQuantity)
                                     )
                                     .build();
 
@@ -355,27 +363,33 @@ public class CreateReservationSagaConfig {
                 )
                 /**
                  * [Compensating Transaction]
-                 * ---------- 유저 잔액 감소 ----------
+                 * ---------- 결제 취소 ----------
                  * key
                  * userId
                  *
                  * payload
-                 * {@link org.server.rsaga.user.UpdateUserBalanceRequestOuterClass.UpdateUserBalanceRequest}
+                 * {@link org.server.rsaga.payment.PaymentRequestOuterClass.PaymentRequest}
                  *
                  * requestQuantity (구매 요청 수) * price(가격) 만큼 유저의 잔액을 복구시킨다.
                  */
-                .addStep("updateUserBalance", MessagingTopics.CREATE_RESERVATION_UPDATE_USER_BALANCE.name(),
+                .addStep("payment", MessagingTopics.CREATE_RESERVATION_PAYMENT.name(),
                         (messages) ->
                         {
-                            // payload, key, metadata
                             String key = null;
 
+                            // payload
                             long userId = 0;
                             long price = 0;
                             long requestQuantity = 0;
+                            long reservationId = 0;
+                            String paymentType = null; // 결제 타입
 
                             for (SagaMessage<String, CreateReservationEvent> message : messages) {
                                 CreateReservationEvent beforePayload = message.payload();
+
+                                if (beforePayload.hasCheckedReservation()) {
+                                    reservationId = beforePayload.getCheckedReservation().getReservationId();
+                                }
 
                                 if (beforePayload.hasVerifiedUser()) {
                                     userId = beforePayload.getVerifiedUser().getUserId();
@@ -390,14 +404,15 @@ public class CreateReservationSagaConfig {
 
                                 if (beforePayload.hasCreateReservationInit()) {
                                     requestQuantity = beforePayload.getCreateReservationInit().getRequestQuantity();
+                                    paymentType = beforePayload.getCreateReservationInit().getPaymentType();
                                 }
                             }
 
                             CreateReservationEvent payload = CreateReservationEventBuilder
                                     .builder()
                                     // 복구이므로 +
-                                    .setUpdateUserBalanceRequest(
-                                            userId, price * requestQuantity
+                                    .setPaymentRequest(
+                                            paymentType, userId, reservationId, (price * requestQuantity)
                                     )
                                     .build();
 
@@ -449,7 +464,7 @@ public class CreateReservationSagaConfig {
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
                         }, messageProducer, StepType.EXECUTE
-                        , "verifyItem", "updateUserBalance", SagaDefinitionFactoryImpl.getInitialStepName()
+                        , "verifyItem", "payment", SagaDefinitionFactoryImpl.getInitialStepName()
                 )
                 /**
                  * [Compensating Transaction]
@@ -494,7 +509,7 @@ public class CreateReservationSagaConfig {
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
                         }, messageProducer, StepType.COMPENSATE
-                        , "verifyItem", "updateUserBalance", SagaDefinitionFactoryImpl.getInitialStepName()
+                        , "verifyItem", "payment", SagaDefinitionFactoryImpl.getInitialStepName()
                 )
 
 

@@ -4,14 +4,12 @@ import org.server.rsaga.user.domain.User;
 
 public record UserDetailsResponse(
         Long userId,
-        String name,
-        Long balance
+        String name
 ) {
     public static UserDetailsResponse of(User user) {
         return new UserDetailsResponse(
                 user.getId(),
-                user.getName(),
-                user.getBalance()
+                user.getName()
         );
     }
 }

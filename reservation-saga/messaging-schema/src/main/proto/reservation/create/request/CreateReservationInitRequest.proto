@@ -8,4 +8,5 @@ message CreateReservationInitRequest{
   int64 reservableItemTimeId = 3;
   int64 userId = 4;
   int64 requestQuantity = 5;
+  string paymentType = 6;
 }

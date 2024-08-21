@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package org.server.rsaga.payment;
+
+message PaymentRequest {
+  string paymentType = 1;
+  int64 userId = 2;
+  int64 reservationId = 3;
+  int64 amount = 4;
+}

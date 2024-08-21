@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package org.server.rsaga.payment;
+
+message PaymentResponse {
+  int64 userId = 1;
+}
