@@ -44,15 +44,20 @@ public class BusinessApiService {
     public BusinessDetailsResponse modifyBusiness(Long businessId, ModifyBusinessRequest request) {
         Business business = businessCustomRepository.findByIdOrElseThrow(businessId);
 
+        BusinessCategory businessCategory = null;
+        if (request.businessMajorCategory() != null) {
+            businessCategory = new BusinessCategory(
+                    request.businessMajorCategory(),
+                    request.businessSubCategory(),
+                    request.businessDetailCategory()
+            );
+        }
+
         business.changeName(
                         request.name()
                 )
                 .changeBusinessCategory(
-                        new BusinessCategory(
-                                request.businessMajorCategory(),
-                                request.businessSubCategory(),
-                                request.businessDetailCategory()
-                        )
+                        businessCategory
                 );
 
         return BusinessDetailsResponse.of(business);

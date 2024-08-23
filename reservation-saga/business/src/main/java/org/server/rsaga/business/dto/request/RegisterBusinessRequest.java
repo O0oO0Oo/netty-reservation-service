@@ -8,7 +8,7 @@ import org.server.rsaga.business.domain.constant.BusinessSubCategory;
 
 public record RegisterBusinessRequest(
         @NotNull(message = "이름은 필수 입력 값입니다")
-        @Length(min = 1, max = 20, message = "이름은 1 ~ 20자 입니다.")
+        @Length(min = 1, max = 50, message = "이름은 1 ~ 20자 입니다.")
         String name,
 
         @NotNull(message = "회사 유형 주요 카테고리는 필수 입니다.")

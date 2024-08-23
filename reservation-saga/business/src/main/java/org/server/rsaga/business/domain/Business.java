@@ -31,7 +31,7 @@ public class Business {
     @Embedded
     private BaseTime baseTime;
 
-    public Business(String name, BusinessCategory businessCategory) {
+    public Business(final String name,final BusinessCategory businessCategory) {
         checkName(name);
         this.name = name;
 
@@ -59,14 +59,14 @@ public class Business {
     /**
      * ---------------------- setter ----------------------
      */
-    public Business changeName(String newName) {
+    public Business changeName(final String newName) {
         if (newName != null && !newName.trim().isEmpty()) {
             this.name = newName;
         }
         return this;
     }
 
-    public Business changeBusinessCategory(BusinessCategory newBusinessCategory) {
+    public Business changeBusinessCategory(final BusinessCategory newBusinessCategory) {
         if(newBusinessCategory != null) {
             this.businessCategory = newBusinessCategory;
         }
@@ -75,6 +75,8 @@ public class Business {
 
     public void closeBusiness() {
         this.closed = true;
+        
+        // todo 관련 item 모두 사용불가능하게
     }
 
     /**
