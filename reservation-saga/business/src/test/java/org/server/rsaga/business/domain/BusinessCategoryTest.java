@@ -23,6 +23,6 @@ class BusinessCategoryTest {
         ));
 
         // then
-        assertEquals(aThrows.getMessage(), "Major category cannot be empty.");
+        assertEquals("Major category cannot be empty.", aThrows.getMessage());
     }
 }

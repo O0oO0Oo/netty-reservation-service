@@ -31,8 +31,8 @@ class BusinessTest {
         IllegalArgumentException aThrows2 = assertThrows(IllegalArgumentException.class, () -> new Business("mom's touch", null));
 
         // then
-        assertEquals(aThrows1.getMessage(), "Business name cannot be empty.");
-        assertEquals(aThrows2.getMessage(), "Business category cannot be null.");
+        assertEquals("Business name cannot be empty.", aThrows1.getMessage());
+        assertEquals("Business category cannot be null.", aThrows2.getMessage());
     }
 
     @Test

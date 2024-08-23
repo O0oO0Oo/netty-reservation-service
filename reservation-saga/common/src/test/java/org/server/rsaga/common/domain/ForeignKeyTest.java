@@ -19,7 +19,7 @@ class ForeignKeyTest {
         );
 
         // then
-        assertEquals(aThrows.getMessage(), "The id should not be null.");
+        assertEquals("The id should not be null.", aThrows.getMessage());
     }
 
     @Test

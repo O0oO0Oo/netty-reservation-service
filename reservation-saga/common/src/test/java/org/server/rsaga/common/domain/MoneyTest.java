@@ -23,7 +23,7 @@ class MoneyTest {
             );
 
             // then
-            assertEquals(aThrows.getMessage(), "The money amount should be a negative value.");
+            assertEquals("The money amount should be a negative value.", aThrows.getMessage());
         }
 
         @Test
