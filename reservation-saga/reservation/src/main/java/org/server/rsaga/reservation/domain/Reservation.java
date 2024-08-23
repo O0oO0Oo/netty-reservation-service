@@ -46,7 +46,15 @@ public class Reservation {
 
     @Embedded
     private BaseTime baseTime;
-    public Reservation(Long id, Long businessId, Long userId, Long reservableItemId, Long reservableTimeId, Long quantity) {
+
+    public Reservation(
+            final Long id,
+            final Long businessId,
+            final Long userId,
+            final Long reservableItemId,
+            final Long reservableTimeId,
+            final Long quantity
+    ) {
         checkNull(id);
         checkTsid(id);
         this.id = id;
@@ -101,7 +109,6 @@ public class Reservation {
             throw new IllegalArgumentException("Changes can only be made when an reservation is in the 'RESERVED' or 'PENDING' state.");
         }
     }
-
 
     /**
      * ---------------------- validation ----------------------

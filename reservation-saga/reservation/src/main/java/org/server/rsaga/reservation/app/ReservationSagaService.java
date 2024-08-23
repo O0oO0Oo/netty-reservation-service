@@ -27,6 +27,7 @@ public class ReservationSagaService {
         // TSID key
         String key = correlationId.toString();
 
+        // init payload
         CreateReservationEvent createReservationEvent = CreateReservationEventBuilder
                 .builder()
                 .setRegisterReservationInitRequest(
@@ -39,12 +40,15 @@ public class ReservationSagaService {
                 )
                 .build();
 
+        // metadata - step id , correlation id
         Map<String, byte[]> metadata = new HashMap<>();
         metadata.put(SagaMessage.STEP_ID, SagaMessageUtil.intToByteArray(0));
         metadata.put(SagaMessage.CORRELATION_ID, SagaMessageUtil.tsidToBytes(correlationId));
 
+        // saga message
         SagaMessage<String, CreateReservationEvent> sagaMessage = SagaMessage.of(key, createReservationEvent, metadata, Message.Status.REQUEST);
 
+        // result
         SagaMessage<String, CreateReservationEvent> result = sagaCoordinator.start(sagaMessage);
         CreateReservationEvent payload = result.payload();
         CreateReservationFinalResponseOuterClass.CreateReservationFinalResponse createdReservationFinal = payload.getCreatedReservationFinal();
