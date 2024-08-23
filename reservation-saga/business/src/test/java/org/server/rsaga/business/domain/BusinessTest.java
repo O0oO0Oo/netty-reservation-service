@@ -1,10 +1,15 @@
 package org.server.rsaga.business.domain;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.server.rsaga.business.domain.constant.BusinessDetailCategory;
 import org.server.rsaga.business.domain.constant.BusinessMajorCategory;
 import org.server.rsaga.business.domain.constant.BusinessSubCategory;
+import org.server.rsaga.common.event.BusinessClosedEvent;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -57,5 +62,49 @@ class BusinessTest {
         assertNotSame(businessCategory, changedBusinessCategory);
     }
 
+    @Nested
+    @DisplayName("Business domain event tests")
+    class BusinessDomainEvent {
+        private Business business;
 
+        @BeforeEach
+        void setUp() {
+            BusinessCategory businessCategory = new BusinessCategory(
+                    BusinessMajorCategory.STORE,
+                    BusinessSubCategory.GROCERY,
+                    BusinessDetailCategory.ORGANIC
+            );
+            business = new Business("Test Business", businessCategory);
+        }
+
+        @Test
+        @DisplayName("closeBusiness() - Domain event published")
+        void should_closedBusinessAndEventPublished_when_closeBusiness() {
+            // given
+
+            // when
+            business.closeBusiness();
+
+            // then
+            List<Object> events = business.getDomainEvents();
+            assertEquals(1, events.size(), "Expected exactly one domain event after closing business.");
+            assertTrue(events.get(0) instanceof BusinessClosedEvent, "BusinessClosedEvent should have been added");
+
+            BusinessClosedEvent event = (BusinessClosedEvent) events.get(0);
+            assertEquals(business.getId(), event.businessId(), "Business ID in the event should match the closed business ID.");
+        }
+
+        @Test
+        @DisplayName("clearDomainEvents() - Domain events cleared.")
+        void clearDomainEvents_ShouldClearEventsAfterPublication() {
+            // given
+
+            // when
+            business.closeBusiness();
+            business.clearDomainEvents();
+
+            // then
+            assertTrue(business.getDomainEvents().isEmpty(), "Domain events should be empty after after executing the clearDomainEvents() method.");
+        }
+    }
 }

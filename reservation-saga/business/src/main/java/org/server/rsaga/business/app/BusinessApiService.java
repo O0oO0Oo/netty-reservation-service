@@ -22,7 +22,7 @@ public class BusinessApiService {
     @Transactional(readOnly = true)
     public BusinessDetailsResponse findBusiness(Long businessId) {
         return BusinessDetailsResponse.of(
-                businessCustomRepository.findByIdOrElseThrow(businessId)
+                businessCustomRepository.findByIdAndNotClosedOrElseThrow(businessId)
         );
     }
 
@@ -42,7 +42,7 @@ public class BusinessApiService {
 
     @Transactional
     public BusinessDetailsResponse modifyBusiness(Long businessId, ModifyBusinessRequest request) {
-        Business business = businessCustomRepository.findByIdOrElseThrow(businessId);
+        Business business = businessCustomRepository.findByIdAndNotClosedOrElseThrow(businessId);
 
         BusinessCategory businessCategory = null;
         if (request.businessMajorCategory() != null) {
@@ -63,10 +63,10 @@ public class BusinessApiService {
         return BusinessDetailsResponse.of(business);
     }
 
-    // todo : 관련 item 도 모두 사용불가능하게 해야함.
     @Transactional
     public void deleteBusiness(Long businessId) {
         Business business = businessCustomRepository.findByIdOrElseThrow(businessId);
         business.closeBusiness();
+        businessJpaRepository.save(business);
     }
 }
