@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class BusinessTest {
 
     @Test
-    @DisplayName("Business - create - failure")
-    void should_failure_when_createInvalidValueBusiness() {
+    @DisplayName("create Business - invalid parameter - fail")
+    void should_fail_when_createInvalidParameterBusiness() {
         // given
         BusinessCategory businessCategory = new BusinessCategory(
                 BusinessMajorCategory.RESTAURANT,
@@ -36,7 +36,7 @@ class BusinessTest {
     }
 
     @Test
-    @DisplayName("Business - changeBusinessCategory() - changed")
+    @DisplayName("changeBusinessCategory() - changed")
     void should_notSame_when_changeBusinessCategory() {
         // given
         BusinessCategory businessCategory = new BusinessCategory(
@@ -63,7 +63,7 @@ class BusinessTest {
     }
 
     @Nested
-    @DisplayName("Business domain event tests")
+    @DisplayName("domain event tests")
     class BusinessDomainEvent {
         private Business business;
 
