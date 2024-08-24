@@ -1,6 +1,7 @@
 package org.server.rsaga.payment.app;
 
 import lombok.RequiredArgsConstructor;
+import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.domain.Money;
 import org.server.rsaga.common.event.CreateWalletEvent;
 import org.server.rsaga.payment.domain.Wallet;
@@ -18,7 +19,8 @@ public class WalletApplicationEventService {
     @Transactional
     public void handleCreateWalletEvent(CreateWalletEvent event) {
         Wallet wallet = new Wallet(
-                event.userId(), new Money(0L)
+                new ForeignKey(event.userId()),
+                new Money(0L)
         );
         walletJpaRepository.save(wallet);
     }

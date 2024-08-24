@@ -6,7 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.server.rsaga.common.domain.BaseTime;
 import org.server.rsaga.common.event.CreateWalletEvent;
-import org.server.rsaga.common.event.EventPublisher;
+import org.springframework.data.domain.AfterDomainEventPublication;
+import org.springframework.data.domain.DomainEvents;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 @Entity
@@ -24,9 +29,16 @@ public class User {
     @Embedded
     private BaseTime baseTime;
 
-    public User(String name) {
+    @Transient
+    private final List<Object> domainEvents = new ArrayList<>();
+
+    public User(
+            final String name
+    ) {
         checkName(name);
         this.name = name;
+
+        createWallet();
     }
 
     /**
@@ -39,10 +51,8 @@ public class User {
         }
     }
 
-    public void createWallet() {
-        EventPublisher.publish(
-                new CreateWalletEvent(this.id)
-        );
+    private void createWallet() {
+        addDomainEvent(new CreateWalletEvent(this.id));
     }
 
     /**
@@ -56,5 +66,23 @@ public class User {
         if (name.length() > 20) {
             throw new IllegalArgumentException("Business name cannot exceed 20 characters.");
         }
+    }
+
+    /**
+     * ---------------------- event ----------------------
+     */
+
+    private void addDomainEvent(Object event) {
+        this.domainEvents.add(event);
+    }
+
+    @DomainEvents
+    public List<Object> getDomainEvents() {
+        return Collections.unmodifiableList(domainEvents);
+    }
+
+    @AfterDomainEventPublication
+    public void clearDomainEvents() {
+        this.domainEvents.clear();
     }
 }

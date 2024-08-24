@@ -22,13 +22,36 @@ public class BusinessCategory {
     @Enumerated(EnumType.STRING)
     BusinessDetailCategory detailCategory;
 
-    public BusinessCategory(BusinessMajorCategory majorCategory, BusinessSubCategory subCategory, BusinessDetailCategory detailCategory) {
+    public BusinessCategory(
+            final BusinessMajorCategory majorCategory,
+            final BusinessSubCategory subCategory,
+            final BusinessDetailCategory detailCategory) {
+        checkMajorCategory(majorCategory);
+        this.majorCategory = majorCategory;
+
+        this.subCategory = subCategory;
+
+        checkDetailCategory(
+                subCategory, detailCategory
+        );
+        this.detailCategory = detailCategory;
+    }
+
+    private void checkMajorCategory(
+            final BusinessMajorCategory majorCategory
+    ) {
         if (majorCategory == null) {
             throw new IllegalArgumentException("Major category cannot be empty.");
         }
-        this.majorCategory = majorCategory;
-        this.subCategory = subCategory;
-        this.detailCategory = detailCategory;
+    }
+
+    private void checkDetailCategory(
+            final BusinessSubCategory subCategory,
+            final BusinessDetailCategory detailCategory)
+    {
+        if (subCategory == null && detailCategory != null) {
+            throw new IllegalArgumentException("In order for DetailCategory to be set, Subcategory should not be null.");
+        }
     }
 
     protected BusinessCategory() {

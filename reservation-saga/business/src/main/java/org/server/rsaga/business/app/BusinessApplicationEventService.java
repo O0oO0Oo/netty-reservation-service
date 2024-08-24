@@ -18,6 +18,10 @@ public class BusinessApplicationEventService {
     @Transactional(readOnly = true)
     public void handleBusinessValidationEvent(BusinessValidationEvent event) {
         boolean isValid = businessJpaRepository.existsByIdAndClosedFalse(event.businessId());
+        validOrElseThrow(isValid);
+    }
+
+    private void validOrElseThrow(boolean isValid) {
         if(!isValid){
             throw new CustomException(ErrorCode.BUSINESS_NOT_FOUND);
         }

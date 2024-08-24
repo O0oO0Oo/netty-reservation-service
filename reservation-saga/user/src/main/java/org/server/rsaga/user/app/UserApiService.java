@@ -1,9 +1,7 @@
 package org.server.rsaga.user.app;
 
 import lombok.RequiredArgsConstructor;
-import org.server.rsaga.common.domain.Money;
 import org.server.rsaga.user.domain.User;
-import org.server.rsaga.user.dto.request.ModifyUserBalanceRequest;
 import org.server.rsaga.user.dto.request.ModifyUserRequest;
 import org.server.rsaga.user.dto.request.RegisterUserRequest;
 import org.server.rsaga.user.dto.response.UserDetailsResponse;
@@ -32,12 +30,7 @@ public class UserApiService {
         User user = new User(
                 request.name()
         );
-
-        User saved = userJpaRepository.save(user);
-        
-        // 유저 지갑 생성
-        saved.createWallet();
-        return UserDetailsResponse.of(saved);
+        return UserDetailsResponse.of(userJpaRepository.save(user));
     }
 
     @Transactional

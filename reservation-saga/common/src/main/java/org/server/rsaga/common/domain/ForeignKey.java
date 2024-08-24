@@ -10,11 +10,15 @@ public class ForeignKey {
     @Column(name = "foreign_key", nullable = false)
     Long id;
 
-    public ForeignKey(Long id) {
+    public ForeignKey(final Long id) {
+        checkNull(id);
+        this.id = id;
+    }
+
+    private void checkNull(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("The id should not be null.");
         }
-        this.id = id;
     }
 
     protected ForeignKey() {

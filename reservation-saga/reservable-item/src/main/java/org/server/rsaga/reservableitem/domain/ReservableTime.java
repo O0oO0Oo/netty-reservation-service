@@ -28,7 +28,10 @@ public class ReservableTime {
 
     private boolean isTimeAvailable;
 
-    public ReservableTime(Date time, Stock stock, boolean isTimeAvailable) {
+    public ReservableTime(
+            final Date time,
+            final Stock stock,
+            final boolean isTimeAvailable) {
         checkReservableTime(time);
         this.time = time;
 
@@ -49,12 +52,12 @@ public class ReservableTime {
 
     public void rescheduleDate(Date newReservableTime) {
         if (newReservableTime != null) {
-            isTimePassed(newReservableTime);
+            checkIfDateIsInFuture(newReservableTime);
             this.time = newReservableTime;
         }
     }
 
-    public void setReservableItem(ReservableItem reservableItem) {
+    public void assignReservableItem(ReservableItem reservableItem) {
         this.reservableItem = reservableItem;
     }
 
@@ -79,10 +82,10 @@ public class ReservableTime {
         if (reservableTime == null) {
             throw new IllegalArgumentException("The reservableTime must not be null.");
         }
-        isTimePassed(reservableTime);
+        checkIfDateIsInFuture(reservableTime);
     }
 
-    private void isTimePassed(Date date) {
+    private void checkIfDateIsInFuture(Date date) {
         Date now = new Date();
         if (date.before(now)) {
             throw new IllegalArgumentException("The date must be after today.");

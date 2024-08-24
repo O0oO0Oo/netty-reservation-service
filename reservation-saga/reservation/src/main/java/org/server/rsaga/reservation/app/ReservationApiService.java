@@ -36,36 +36,13 @@ public class ReservationApiService {
         );
     }
 
-
-//    // TODO : 취소는 따로 구현
-//    @Transactional
-//    public Reservation modifyReservation(Long reservationId, ModifyReservationRequest request) {
-//        // 예약 날짜 같이 가져오기.
-////        Reservation reservation = findWithReservableItemAndUserByIdAndUserIdOrElseThrow(reservationId, userId);
-//        // TODO : 유저와 아이템 정보
-////        User user = reservation.getUser();
-////        ReservableItem item = reservation.getReservableItem();
-//
-//        // 변경하려는 값이 같다면 변경 불가.
-////        isSameStatus(reservation.getReservationStatus(), request.reservationStatus());
-//
-//        // 이미 취소, 완료면, 변경 불가.
-////        isAlreadyCanceledOrCompleted(reservation);
-//
-//        // TODO : 날짜가 지났다면 취소 불가.
-////        isDatePassedWhenCanceled(reservation, request.reservationRecordStatus());
-//
-////        reservation
-////                .updateStatus(
-////                        request.reservationStatus()
-////                );
-//
-//        // TODO : 취소라면 아이템 수량 복구
-////        ifCanceledAddReservationItemQuantity(reservation.getReservableItem(), reservation);
-//
-//        // TODO : 취소라면 유저 잔액 복구
-////        ifCanceledAddUserBalance(user, reservation.getQuantity(), item.getPrice());
-//
-//        return reservation;
-//    }
+    /**
+     * todo : 예약 수정 구현
+     * <pre>
+     * public ReservationDetailsResponse modifyReservation(Long reservationId, ModifyReservationRequest request)
+     * 1. 날짜가 지났다면 취소 불가.
+     * 2. 이미 취소, 완료상태라면 취소 불가.
+     * 2. 취소라면 아이템 수량, 유저 지갑 잔액 복구
+     * </pre>
+     */
 }

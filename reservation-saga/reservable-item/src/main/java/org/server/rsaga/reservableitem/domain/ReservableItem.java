@@ -9,6 +9,7 @@ import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.domain.Money;
 import org.server.rsaga.common.event.BusinessValidationEvent;
 import org.server.rsaga.common.event.EventPublisher;
+import org.springframework.data.domain.DomainEvents;
 
 import java.util.Date;
 import java.util.List;
@@ -45,7 +46,13 @@ public class ReservableItem {
     @Embedded
     private BaseTime baseTime;
 
-    public ReservableItem(String name, Long maxQuantityPerUser, List<ReservableTime> reservableTimes, Money price, Long businessId, boolean isItemAvailable) {
+    public ReservableItem(
+            final String name,
+            final Long maxQuantityPerUser,
+            final List<ReservableTime> reservableTimes,
+            final Money price,
+            final ForeignKey businessId,
+            final boolean isItemAvailable) {
         checkName(name);
         this.name = name;
 
@@ -54,7 +61,7 @@ public class ReservableItem {
 
         checkReservableTimes(reservableTimes);
         for (ReservableTime reservableTime : reservableTimes) {
-            reservableTime.setReservableItem(this);
+            reservableTime.assignReservableItem(this);
         }
         this.reservableTimes = reservableTimes;
 
@@ -62,7 +69,7 @@ public class ReservableItem {
         this.price = price;
 
         validateBusinessId(businessId);
-        this.businessId = new ForeignKey(businessId);
+        this.businessId = businessId;
 
         this.isItemAvailable = isItemAvailable;
     }
@@ -98,7 +105,6 @@ public class ReservableItem {
      */
     public ReservableItem changeName(String newName) {
         if (newName != null && !newName.trim().isEmpty()) {
-            checkName(newName);
             this.name = newName;
         }
         return this;
@@ -166,7 +172,7 @@ public class ReservableItem {
      */
     public ReservableItem addReservableTime(ReservableTime newReservableTime) {
         if (newReservableTime != null) {
-            newReservableTime.setReservableItem(this);
+            newReservableTime.assignReservableItem(this);
             reservableTimes.add(newReservableTime);
         }
         return this;
@@ -206,29 +212,30 @@ public class ReservableItem {
 
     private void checkQuantityPerUser(Long maxQuantityPerUser) {
         if (maxQuantityPerUser == null || maxQuantityPerUser < 0) {
-            throw new IllegalArgumentException("The maxQuantityPerUser must not be a negative value.");
+            throw new IllegalArgumentException("The maxQuantityPerUser should not be a negative value.");
         }
     }
+
     private void checkReservableTimes(List<ReservableTime> reservableTimes) {
         if (reservableTimes == null || reservableTimes.isEmpty()) {
-            throw new IllegalArgumentException("The list of reservable times must contain at least one reservable time.");
+            throw new IllegalArgumentException("The list of reservable times should contain at least one reservable time.");
         }
     }
 
     private void checkPrice(Money price) {
         if (price == null) {
-            throw new IllegalArgumentException("The price must not be null.");
+            throw new IllegalArgumentException("The price should not be null.");
         }
     }
 
     /**
      * {@link BusinessValidationEvent} 를 발행하여 회사가 존재하는지, 폐업 상태인지 검증한다.
      */
-    private void validateBusinessId(Long businessId) {
+    private void validateBusinessId(ForeignKey businessId) {
         if (businessId == null) {
-            throw new IllegalArgumentException("the businessId must not be null.");
+            throw new IllegalArgumentException("the businessId should not be null.");
         }
-        EventPublisher.publish(new BusinessValidationEvent(businessId));
+        EventPublisher.publish(new BusinessValidationEvent(businessId.getId()));
     }
 
     public void validateRequestQuantity(long requestQuantity) {

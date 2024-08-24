@@ -30,24 +30,40 @@ public class Payment {
     private Money amount;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PaymentType paymentType;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
-    public Payment(Long userId, Long reservationId, Money amount, PaymentType paymentType, PaymentStatus paymentStatus) {
-        this.userId = new ForeignKey(userId);
-        this.reservationId = new ForeignKey(reservationId);
+    public Payment(
+            final ForeignKey userId,
+            final ForeignKey reservationId,
+            final Money amount,
+            final PaymentType paymentType,
+            final PaymentStatus paymentStatus) {
+        checkNull(userId);
+        this.userId = userId;
+
+        checkNull(reservationId);
+        this.reservationId = reservationId;
+
+        checkNull(amount);
         this.amount = amount;
+
+        checkNull(paymentType);
         this.paymentType = paymentType;
+
+        checkNull(paymentStatus);
         this.paymentStatus = paymentStatus;
     }
 
     /**
      * ---------------------- getter ----------------------
      */
-    public long getAmount() {
-        return amount.getAmount();
+    public Money amount() {
+        return amount;
     }
 
     public long getUserId() {

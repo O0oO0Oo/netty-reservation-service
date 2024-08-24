@@ -14,7 +14,10 @@ public class Stock {
     @Enumerated(EnumType.STRING)
     Unit unit;
 
-    public Stock(Long quantity, Unit unit) {
+    public Stock(
+            final Long quantity,
+            final Unit unit
+    ) {
         checkQuantity(quantity);
         this.quantity = quantity;
 
@@ -27,7 +30,7 @@ public class Stock {
      */
     public Stock increaseQuantity(Long increment) {
         if (increment == null || increment < 0) {
-            throw new IllegalArgumentException("Increment must not be null or negative.");
+            throw new IllegalArgumentException("Increment should not be null or negative.");
         }
 
         long newQuantity = this.quantity + increment;
@@ -36,12 +39,12 @@ public class Stock {
 
     public Stock decreaseQuantity(Long decrement) {
         if (decrement == null || decrement < 0) {
-            throw new IllegalArgumentException("Decrement must not be null or negative.");
+            throw new IllegalArgumentException("Decrement should not be null or negative.");
         }
 
         long newQuantity = this.quantity - decrement;
         if (newQuantity < 0) {
-            throw new IllegalArgumentException("Stock quantities must not be negative.");
+            throw new IllegalArgumentException("Insufficient stock available to decrease by " + decrement + " " + this.unit.name());
         }
         return new Stock(newQuantity, this.unit);
     }
@@ -51,13 +54,13 @@ public class Stock {
      */
     private void checkQuantity(Long quantity) {
         if (quantity == null || quantity < 0L) {
-            throw new IllegalArgumentException("Stock quantities must not be a negative value.");
+            throw new IllegalArgumentException("Stock quantities should not be a negative value.");
         }
     }
 
     private void checkUnit(Unit unit) {
         if (unit == null) {
-            throw new IllegalArgumentException("Stock units must not be null.");
+            throw new IllegalArgumentException("Stock units should not be null.");
         }
     }
 

@@ -24,20 +24,25 @@ public class Wallet {
     @AttributeOverride(name = "amount", column = @Column(name = "balance", nullable = false))
     private Money balance;
 
-    public Wallet(Long userId, Money balance) {
-        this.userId = new ForeignKey(userId);
+    public Wallet(
+            final ForeignKey userId,
+            final Money balance) {
+        checkNull(userId);
+        this.userId = userId;
+
+        checkNull(balance);
         this.balance = balance;
     }
 
     /**
      * ---------------------- getter ----------------------
      */
-    public long getBalance() {
-        return balance.getAmount();
-    }
-
     public long getUserId() {
         return userId.getId();
+    }
+
+    public Money getBalance() {
+        return balance;
     }
 
     /**
@@ -52,6 +57,15 @@ public class Wallet {
     public void subtractBalance(Money newMoney) {
         if (newMoney != null) {
             this.balance = this.balance.subtract(newMoney);
+        }
+    }
+
+    /**
+     * ---------------------- validation ----------------------
+     */
+    private void checkNull(Object object) {
+        if (object == null) {
+            throw new IllegalArgumentException("The parameter should not be null.");
         }
     }
 }

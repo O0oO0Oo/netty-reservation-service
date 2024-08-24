@@ -63,7 +63,7 @@ public class ReservableItemApiService {
                 request.maxQuantityPerUser(),
                 reservableTimes,
                 price,
-                request.businessId(),
+                new ForeignKey(request.businessId()),
                 request.isItemAvailable()
         );
         return ReservableItemWithTimeDetailsResponse.of(

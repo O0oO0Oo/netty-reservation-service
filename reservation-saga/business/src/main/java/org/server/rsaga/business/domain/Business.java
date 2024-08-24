@@ -8,6 +8,13 @@ import org.server.rsaga.business.domain.constant.BusinessDetailCategory;
 import org.server.rsaga.business.domain.constant.BusinessMajorCategory;
 import org.server.rsaga.business.domain.constant.BusinessSubCategory;
 import org.server.rsaga.common.domain.BaseTime;
+import org.server.rsaga.common.event.BusinessClosedEvent;
+import org.springframework.data.domain.AfterDomainEventPublication;
+import org.springframework.data.domain.DomainEvents;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Getter
@@ -31,7 +38,10 @@ public class Business {
     @Embedded
     private BaseTime baseTime;
 
-    public Business(String name, BusinessCategory businessCategory) {
+    @Transient
+    private final List<Object> domainEvents = new ArrayList<>();
+
+    public Business(final String name,final BusinessCategory businessCategory) {
         checkName(name);
         this.name = name;
 
@@ -59,22 +69,28 @@ public class Business {
     /**
      * ---------------------- setter ----------------------
      */
-    public Business changeName(String newName) {
+    public Business changeName(final String newName) {
         if (newName != null && !newName.trim().isEmpty()) {
             this.name = newName;
         }
         return this;
     }
 
-    public Business changeBusinessCategory(BusinessCategory newBusinessCategory) {
+    public Business changeBusinessCategory(final BusinessCategory newBusinessCategory) {
         if(newBusinessCategory != null) {
             this.businessCategory = newBusinessCategory;
         }
         return this;
     }
 
+    /**
+     * 회사 폐업, 회사에서 등록된 아이템들은 모두 이용 불가가 되어야한다.
+     */
     public void closeBusiness() {
-        this.closed = true;
+        if(!closed) {
+            this.closed = true;
+            addDomainEvent(new BusinessClosedEvent(id));
+        }
     }
 
     /**
@@ -95,5 +111,23 @@ public class Business {
         if (businessCategory == null) {
             throw new IllegalArgumentException("Business category cannot be null.");
         }
+    }
+
+    /**
+     * ---------------------- event ----------------------
+     */
+
+    private void addDomainEvent(Object event) {
+        this.domainEvents.add(event);
+    }
+
+    @DomainEvents
+    public List<Object> getDomainEvents() {
+        return Collections.unmodifiableList(domainEvents);
+    }
+
+    @AfterDomainEventPublication
+    public void clearDomainEvents() {
+        this.domainEvents.clear();
     }
 }

@@ -20,4 +20,12 @@ public class BusinessCustomRepositoryImpl implements BusinessCustomRepository {
                         () -> new CustomException(ErrorCode.BUSINESS_NOT_FOUND)
                 );
     }
+
+    @Override
+    public Business findByIdAndNotClosedOrElseThrow(Long id) {
+        return businessJpaRepository.findByIdAndClosedFalse(id)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.BUSINESS_NOT_FOUND)
+                );
+    }
 }
