@@ -31,7 +31,7 @@ class BusinessMessageEventServiceTest {
 
 
     @Nested
-    @DisplayName("consumeVerifyBusinessEvent() tests")
+    @DisplayName("consumeVerifyBusinessEvent()")
     class ConsumeVerifyBusinessEvent {
         @Mock
         SagaMessage<String, CreateReservationEvent> message;

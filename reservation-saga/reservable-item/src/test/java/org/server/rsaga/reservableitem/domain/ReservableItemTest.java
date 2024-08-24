@@ -63,7 +63,7 @@ class ReservableItemTest {
     }
 
     @Nested
-    @DisplayName("create ReservableItem tests")
+    @DisplayName("ReservableItem constructor")
     class CreateReservableItem {
         @Test
         @DisplayName("invalid name - throw")

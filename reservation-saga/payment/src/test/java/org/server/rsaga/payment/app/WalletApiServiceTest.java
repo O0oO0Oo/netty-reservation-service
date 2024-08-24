@@ -41,7 +41,7 @@ class WalletApiServiceTest {
     }
 
     @Test
-    @DisplayName("deposit() - valid request - succeed")
+    @DisplayName("deposit() - valid request - increase balance")
     void should_increaseBalance_when_depositAndValidRequest() {
         // given
         ModifyWalletRequest request = new ModifyWalletRequest(userId, 500L);
@@ -65,7 +65,7 @@ class WalletApiServiceTest {
     }
 
     @Test
-    @DisplayName("withdraw() - valid request - succeed")
+    @DisplayName("withdraw() - valid request - decrease balance")
     void should_decreaseBalance_when_withdrawAndValidRequest() {
         // given
         ModifyWalletRequest request = new ModifyWalletRequest(userId, 300L);

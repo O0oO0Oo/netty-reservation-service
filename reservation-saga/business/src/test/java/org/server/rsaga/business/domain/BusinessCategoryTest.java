@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class BusinessCategoryTest {
 
     @Test
-    @DisplayName("create BusinessCategory - null MajorCategory - fail")
-    void should_fail_when_createInvalidParameter() {
+    @DisplayName("BusinessCategory constructor - null MajorCategory - throw")
+    void should_throw_when_createInvalidParameter() {
         // given
 
         // when

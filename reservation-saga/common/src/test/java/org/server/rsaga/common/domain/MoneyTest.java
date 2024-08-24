@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class MoneyTest {
 
     @Nested
-    @DisplayName("Money - create tests")
+    @DisplayName("Money constructor")
     class CreateMoney {
         @Test
-        @DisplayName("negative amount - failure")
+        @DisplayName("negative amount - throw")
         void should_throw_when_createNegativeValue() {
             // given
 
@@ -27,8 +27,8 @@ class MoneyTest {
         }
 
         @Test
-        @DisplayName("valid amount - success")
-        void should_success_when_create() {
+        @DisplayName("valid amount - created")
+        void should_created_when_create() {
             // given
 
             // when
@@ -40,7 +40,7 @@ class MoneyTest {
     }
 
     @Test
-    @DisplayName("Money - add() test ")
+    @DisplayName("add() - valid value - added")
     void should_added_when_addMoney() {
         // given
         Money money1 = new Money(1L);
@@ -55,7 +55,7 @@ class MoneyTest {
     }
 
     @Test
-    @DisplayName("Money - subtract() test")
+    @DisplayName("subtract() - valid value - subtracted")
     void should_subtracted_when_subtractMoney() {
         // given
         Money money1 = new Money(2L);

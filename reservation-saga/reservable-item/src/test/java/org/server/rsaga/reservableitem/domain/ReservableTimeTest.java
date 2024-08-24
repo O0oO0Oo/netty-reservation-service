@@ -17,7 +17,7 @@ class ReservableTimeTest {
 
 
     @Nested
-    @DisplayName("create ReservableTime tests")
+    @DisplayName("ReservableTime constructor")
     class CreateReservableTime {
         @Test
         @DisplayName("date is past than today - throw")

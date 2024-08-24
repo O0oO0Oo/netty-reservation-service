@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ForeignKeyTest {
 
     @Test
-    @DisplayName("create ForeignKey - null id - failure")
+    @DisplayName("create ForeignKey - null id - throw")
     void should_throw_when_createNullId() {
         // given
 
@@ -23,8 +23,8 @@ class ForeignKeyTest {
     }
 
     @Test
-    @DisplayName("create ForeignKey - valid parameter - success")
-    void should_success_when_create() {
+    @DisplayName("create ForeignKey - valid parameter - create ForeignKey")
+    void should_created_when_create() {
         // given
 
         // when

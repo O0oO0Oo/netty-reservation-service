@@ -25,7 +25,7 @@ class UserTest {
     }
 
     @Nested
-    @DisplayName("create User tests")
+    @DisplayName("User constructor")
     class CreateUserTests {
 
         @Test

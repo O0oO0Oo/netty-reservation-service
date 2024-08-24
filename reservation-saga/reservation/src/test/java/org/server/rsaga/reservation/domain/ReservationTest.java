@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class ReservationTest {
     @Nested
-    @DisplayName("constructor tests")
+    @DisplayName("Reservation constructor")
     class ConstructorTests {
 
         @Test
@@ -84,7 +84,7 @@ class ReservationTest {
     }
 
     @Nested
-    @DisplayName("updateStatus() tests")
+    @DisplayName("updateStatus()")
     class UpdateStatusTests {
 
         @Test

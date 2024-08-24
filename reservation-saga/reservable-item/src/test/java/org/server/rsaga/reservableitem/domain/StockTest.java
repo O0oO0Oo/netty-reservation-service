@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StockTest {
 
     @Nested
-    @DisplayName("create Stock tests")
+    @DisplayName("Stock constructor")
     class CreateStock {
 
         @Test
@@ -41,7 +41,7 @@ class StockTest {
     }
 
     @Test
-    @DisplayName("increaseQuantity() - valid parameter - succeed")
+    @DisplayName("increaseQuantity() - valid parameter - increased")
     void should_succeedIncreaseQuantity_when_validParameter() {
         // given
         Stock stock = new Stock(1L, Unit.BOX);
@@ -55,7 +55,7 @@ class StockTest {
     }
 
     @Nested
-    @DisplayName("decreaseQuantity() tests")
+    @DisplayName("decreaseQuantity()")
     class DecreaseStockQuantity {
         @Test
         @DisplayName("valid parameter - succeed")

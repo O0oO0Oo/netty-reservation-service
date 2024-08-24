@@ -47,7 +47,7 @@ class BusinessApiServiceTest {
 
 
     @Test
-    @DisplayName("registerBusiness() tests - valid RegisterBusinessRequest - success")
+    @DisplayName("registerBusiness() - valid RegisterBusinessRequest - create business")
     void should_createBusiness_when_validRequest() {
         // given
         RegisterBusinessRequest testRequest = new RegisterBusinessRequest(
@@ -72,11 +72,11 @@ class BusinessApiServiceTest {
     }
 
     @Nested
-    @DisplayName("modifyBusiness() tests")
+    @DisplayName("modifyBusiness()")
     class ModifyBusiness {
 
         @Test
-        @DisplayName("null name, valid category ModifyBusinessRequest - success")
+        @DisplayName("null name, valid category ModifyBusinessRequest - change category")
         void should_changed_when_nullNameValidCategory() {
             // given
             ModifyBusinessRequest request = new ModifyBusinessRequest(
@@ -86,7 +86,7 @@ class BusinessApiServiceTest {
                     BusinessDetailCategory.LUXURY
             );
 
-            when(businessCustomRepository.findByIdOrElseThrow(TEST_BUSINESS_ID))
+            when(businessCustomRepository.findByIdAndNotClosedOrElseThrow(TEST_BUSINESS_ID))
                     .thenReturn(testBusiness);
 
             String name = testBusiness.getName();
@@ -102,8 +102,8 @@ class BusinessApiServiceTest {
         }
 
         @Test
-        @DisplayName("valid name, null category ModifyBusinessRequest - success")
-        void should_expectedBehavior_when_validNameNullCategory() {
+        @DisplayName("valid name, null category ModifyBusinessRequest - change name")
+        void should_changeName_when_validNameNullCategory() {
             // given
             String changedName = "changedName";
             ModifyBusinessRequest request = new ModifyBusinessRequest(
@@ -111,7 +111,7 @@ class BusinessApiServiceTest {
                     null, null, null
             );
 
-            when(businessCustomRepository.findByIdOrElseThrow(TEST_BUSINESS_ID))
+            when(businessCustomRepository.findByIdAndNotClosedOrElseThrow(TEST_BUSINESS_ID))
                     .thenReturn(testBusiness);
 
             String name = testBusiness.getName();
@@ -127,7 +127,7 @@ class BusinessApiServiceTest {
         }
 
         @Test
-        @DisplayName("valid name, invalid category ModifyBusinessRequest - failure")
+        @DisplayName("valid name, invalid category ModifyBusinessRequest - throw")
         void should_throw_when_validNameInvalidCategory() {
             // given
             ModifyBusinessRequest request = new ModifyBusinessRequest(
@@ -137,7 +137,7 @@ class BusinessApiServiceTest {
                     BusinessDetailCategory.LUXURY
             );
 
-            when(businessCustomRepository.findByIdOrElseThrow(TEST_BUSINESS_ID))
+            when(businessCustomRepository.findByIdAndNotClosedOrElseThrow(TEST_BUSINESS_ID))
                     .thenReturn(testBusiness);
 
             String name = testBusiness.getName();
@@ -156,7 +156,7 @@ class BusinessApiServiceTest {
     }
 
     @Test
-    @DisplayName("deleteBusiness() - valid request - success")
+    @DisplayName("deleteBusiness() - valid request - business closed")
     void should_businessClosed_when_deleteValidBusinessId() {
         // given
         when(businessCustomRepository.findByIdOrElseThrow(TEST_BUSINESS_ID))

@@ -13,12 +13,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("Business domain tests")
+@DisplayName("Business tests")
 class BusinessTest {
 
     @Test
-    @DisplayName("create Business - invalid parameter - fail")
-    void should_fail_when_createInvalidParameterBusiness() {
+    @DisplayName("create Business - invalid parameter - throw")
+    void should_throw_when_createInvalidParameterBusiness() {
         // given
         BusinessCategory businessCategory = new BusinessCategory(
                 BusinessMajorCategory.RESTAURANT,
@@ -63,7 +63,7 @@ class BusinessTest {
     }
 
     @Nested
-    @DisplayName("domain event tests")
+    @DisplayName("domain event")
     class BusinessDomainEvent {
         private Business business;
 

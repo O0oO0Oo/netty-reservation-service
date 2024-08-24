@@ -22,7 +22,7 @@ class WalletTest {
     }
 
     @Test
-    @DisplayName("Wallet create - success")
+    @DisplayName("Wallet constructor - valid parameter - created")
     void should_createWallet_when_validInput() {
         // given
         ForeignKey userId = new ForeignKey(2L);
@@ -39,7 +39,7 @@ class WalletTest {
     }
 
     @Test
-    @DisplayName("addBalance() - success - increase")
+    @DisplayName("addBalance() - valid parameter - increased")
     void should_increaseBalance_when_addBalance() {
         // given
         Money increment = new Money(500L);
@@ -70,7 +70,7 @@ class WalletTest {
     }
 
     @Test
-    @DisplayName("subtractBalance() - success - decrease")
+    @DisplayName("subtractBalance() - valid parameter - decreased")
     void should_decreaseBalance_when_subtractBalance() {
         // given
         Money decrement = new Money(300L);
