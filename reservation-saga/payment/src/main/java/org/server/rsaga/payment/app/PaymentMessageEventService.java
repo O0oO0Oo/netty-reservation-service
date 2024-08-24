@@ -53,11 +53,16 @@ public class PaymentMessageEventService {
             wallet.subtractBalance(price);
 
             Payment payment = new Payment(
-                    userId, reservationId, price, PaymentType.WALLET, PaymentStatus.SUCCESS
+                    new ForeignKey(userId),
+                    new ForeignKey(reservationId),
+                    price,
+                    PaymentType.WALLET,
+                    PaymentStatus.SUCCESS
             );
             paymentJpaRepository.save(payment);
         }
         else {
+            // compensating
             Payment payment = paymentCustomRepository.findByReservationIdAndUserId(
                     new ForeignKey(reservationId), new ForeignKey(userId)
             );
