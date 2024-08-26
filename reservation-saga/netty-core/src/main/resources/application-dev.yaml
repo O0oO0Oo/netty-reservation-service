@@ -26,6 +26,12 @@ logging:
     org.apache.kafka.clients.consumer.ConsumerConfig: WARN
 #    org.springframework.jdbc.datasource.DataSourceTransactionManager: DEBUG
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
 kafka:
   bootstrap-servers: "192.168.35.5:9092,192.168.35.5:9093,192.168.35.5:9094"
   schema-registry-url: "http://192.168.35.5:8081"
