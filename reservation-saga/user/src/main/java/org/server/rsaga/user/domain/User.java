@@ -37,8 +37,6 @@ public class User {
     ) {
         checkName(name);
         this.name = name;
-
-        createWallet();
     }
 
     /**
@@ -49,10 +47,6 @@ public class User {
         if (newName != null && !newName.trim().isEmpty()) {
             this.name = newName;
         }
-    }
-
-    private void createWallet() {
-        addDomainEvent(new CreateWalletEvent(this.id));
     }
 
     /**
@@ -71,6 +65,11 @@ public class User {
     /**
      * ---------------------- event ----------------------
      */
+
+    @PostPersist
+    private void createWallet() {
+        addDomainEvent(new CreateWalletEvent(this.id));
+    }
 
     private void addDomainEvent(Object event) {
         this.domainEvents.add(event);
