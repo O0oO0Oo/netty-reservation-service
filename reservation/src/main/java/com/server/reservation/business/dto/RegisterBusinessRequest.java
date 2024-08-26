@@ -1,6 +1,6 @@
 package com.server.reservation.business.dto;
 
-import com.server.reservation.business.entity.BusinessType;
+import com.server.reservation.business.domain.BusinessType;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 

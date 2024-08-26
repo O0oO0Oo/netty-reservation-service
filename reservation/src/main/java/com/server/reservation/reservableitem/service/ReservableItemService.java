@@ -1,12 +1,12 @@
 package com.server.reservation.reservableitem.service;
 
-import com.server.reservation.business.entity.Business;
+import com.server.reservation.business.domain.Business;
 import com.server.reservation.business.service.BusinessService;
 import com.server.reservation.common.exception.CustomException;
 import com.server.reservation.common.exception.ErrorCode;
 import com.server.reservation.reservableitem.dto.ModifyReservableItemRequest;
 import com.server.reservation.reservableitem.dto.RegisterReservableItemRequest;
-import com.server.reservation.reservableitem.entity.ReservableItem;
+import com.server.reservation.reservableitem.domain.ReservableItem;
 import com.server.reservation.reservableitem.repository.ReservableItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

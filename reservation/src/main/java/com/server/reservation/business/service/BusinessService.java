@@ -2,7 +2,7 @@ package com.server.reservation.business.service;
 
 import com.server.reservation.business.dto.ModifyBusinessRequest;
 import com.server.reservation.business.dto.RegisterBusinessRequest;
-import com.server.reservation.business.entity.Business;
+import com.server.reservation.business.domain.Business;
 import com.server.reservation.business.repository.BusinessRepository;
 import com.server.reservation.common.exception.CustomException;
 import com.server.reservation.common.exception.ErrorCode;

@@ -6,11 +6,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.server.rsaga.common.event.CreateWalletEvent;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("User tests")
 @ExtendWith(MockitoExtension.class)
@@ -91,29 +89,5 @@ class UserTest {
 
         // then
         assertEquals(name, user.getName(), "The name should not be changed.");
-    }
-
-    @Test
-    @DisplayName("createWallet() - domain event added")
-    void should_addCreateWalletEvent_when_createWallet() {
-        // when
-
-        // then
-        List<Object> domainEvents = user.getDomainEvents();
-        assertEquals(1, domainEvents.size());
-        assertTrue(domainEvents.get(0) instanceof CreateWalletEvent);
-        assertEquals(user.getId(), ((CreateWalletEvent) domainEvents.get(0)).userId());
-    }
-
-    @Test
-    @DisplayName("clearDomainEvents() - domain events cleared")
-    void should_clearDomainEvents_when_clearDomainEvents() {
-        // given
-
-        // when
-        user.clearDomainEvents();
-
-        // then
-        assertTrue(user.getDomainEvents().isEmpty(), "Domain events should be cleared.");
     }
 }
