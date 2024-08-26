@@ -4,6 +4,10 @@ dependencies {
     implementation 'com.google.guava:guava:33.2.1-jre'
 }
 
-tasks.named('bootJar') {
+bootJar {
     enabled = false
+}
+
+jar {
+    enabled = true
 }

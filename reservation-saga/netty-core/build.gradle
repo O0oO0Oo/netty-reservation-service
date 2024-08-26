@@ -8,3 +8,21 @@ dependencies {
 
     implementation "commons-beanutils:commons-beanutils:1.9.4"
 }
+
+bootJar {
+    enabled = true
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    mainClass = 'org.server.rsaga.netty.NettyApplication'
+    dependsOn ':common:jar', ':business:jar', ':reservable-item:jar', ':reservation:jar', ':user:jar', ':payment:jar', ':saga-orchestrator:jar', ':messaging-schema:jar', ':messaging-adapter:jar', ':messaging-core:jar'
+}
+
+jar {
+    enabled = true
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // 의존성을 포함시키기 위한 설정
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    dependsOn ':common:jar', ':business:jar', ':reservable-item:jar', ':reservation:jar', ':user:jar', ':payment:jar', ':saga-orchestrator:jar', ':messaging-schema:jar', ':messaging-adapter:jar', ':messaging-core:jar'
+}

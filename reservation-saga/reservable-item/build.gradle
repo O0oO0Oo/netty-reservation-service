@@ -4,3 +4,11 @@ dependencies {
     implementation project(":messaging-schema")
     implementation project(":messaging-adapter")
 }
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}

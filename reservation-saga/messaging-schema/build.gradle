@@ -35,8 +35,12 @@ sourceSets {
     }
 }
 
-tasks.named('bootJar') {
+bootJar {
     enabled = false
+}
+
+jar {
+    enabled = true
 }
 
 tasks.withType(Copy).configureEach {

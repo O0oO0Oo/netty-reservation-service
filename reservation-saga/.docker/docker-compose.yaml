@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  reservation-saga:
+    build: .
+    container_name: reservation-saga-container
+    volumes:
+      - ./reservation-saga.jar:/app.jar
+    environment:
+      - JAVA_OPTS=
+    command: ["java", "-jar", "/app.jar"]
+    ports:
+      - "8080:8080"

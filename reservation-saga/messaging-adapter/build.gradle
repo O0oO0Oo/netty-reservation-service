@@ -13,3 +13,11 @@ dependencies {
     implementation 'io.confluent:kafka-protobuf-serializer:7.6.1'
     implementation 'io.confluent:kafka-schema-registry-client:7.6.1'
 }
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
