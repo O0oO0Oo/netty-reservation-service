@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/business")
+@RequestMapping("/reservable-items")
 @RequiredArgsConstructor
 public class ReservableItemController {
     private final ReservableItemService reservableItemService;
