@@ -55,7 +55,7 @@ public class ReservableItemMessageEventService {
     }
 
     private void validateItemAvailability(ReservableItem reservableItem, long reservableTimeId) {
-        if (reservableItem.isTimeAvailable(reservableTimeId)) {
+        if (!reservableItem.isTimeAvailable(reservableTimeId)) {
             throw new CustomException(ErrorCode.RESERVABLE_ITEM_IS_NOT_AVAILABLE);
         }
     }

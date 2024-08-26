@@ -19,6 +19,6 @@ public class NettyApplication {
     public static void main(String[] args) {
         SpringApplication.run(NettyApplication.class, args);
 
-        new NettyReservationServer("192.168.35.191",8080, new HttpPipelineInitializer()).start();
+        new NettyReservationServer("0.0.0.0",8080, new HttpPipelineInitializer()).start();
     }
 }
