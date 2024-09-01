@@ -2,6 +2,7 @@ package org.server.rsaga.netty.http.mapping;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.util.concurrent.Promise;
 import lombok.Builder;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.server.rsaga.common.config.ObjectMapperWithValidation;
@@ -44,8 +45,8 @@ public class HandlerExecution {
         this.handler = handler;
     }
 
-    // TODO : Exception -> HandlerExecption is Null.
-    public Object execute() throws InvocationTargetException, IllegalAccessException, JsonProcessingException {
+    // TODO : Exception -> HandlerException is Null.
+    public Object execute() throws InvocationTargetException, IllegalAccessException {
         return handler.execute(parameterConvert());
     }
 

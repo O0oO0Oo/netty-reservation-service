@@ -3,19 +3,23 @@ package org.server.rsaga.netty.http.mapping;
 import io.netty.handler.codec.http.FullHttpRequest;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
+import org.server.rsaga.common.annotation.AsyncResponse;
 import org.springframework.context.ApplicationContext;
+import org.springframework.web.bind.annotation.*;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
-public abstract class AbstractNettyUrlHandlerMapping extends AbstractNettyHandlerMapping{
-
+public abstract class AbstractNettyUrlHandlerMapping<T extends MethodHandler> extends AbstractNettyHandlerMapping{
     private final Map<String, MethodHandler> handlerMap = new LinkedHashMap<>();
+    private final MethodHandlerFactory<T> handlerFactor;
+
+    protected AbstractNettyUrlHandlerMapping(MethodHandlerFactory<T> handlerFactor) {
+        this.handlerFactor = handlerFactor;
+    }
 
     protected Map<String, MethodHandler> getHandlerMap() {
         return handlerMap;
@@ -104,6 +108,7 @@ public abstract class AbstractNettyUrlHandlerMapping extends AbstractNettyHandle
                 .build();
     }
 
+    @Override
     public void registerHandlers(ApplicationContext applicationContext, Class<? extends Annotation>[] annotations) {
         for(Class<? extends Annotation> annotation : annotations) {
             Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(annotation);
@@ -113,5 +118,73 @@ public abstract class AbstractNettyUrlHandlerMapping extends AbstractNettyHandle
         }
     }
 
-    protected abstract void doRegisterHandlers(Object bean);
+    private void doRegisterHandlers(Object bean) {
+        Class<?> controllerClazz = bean.getClass();
+        RequestMapping requestMapping = controllerClazz.getAnnotation(RequestMapping.class);
+        String[] requestMappingPaths = getRequestMappingValue(requestMapping);
+
+        for (Method method : controllerClazz.getMethods()) {
+            if (!shouldRegisterMethod(method)) {
+                continue;
+            }
+
+            T handler = handlerFactor.createHandler();
+            handler.setMethod(bean, method);
+
+            StringBuilder httpMethod = new StringBuilder();
+            String[] methodMappingPaths = getMethodPaths(method, httpMethod);
+
+            registerHandlerPaths(handler, requestMappingPaths, methodMappingPaths, httpMethod.toString());
+        }
+    }
+
+    /**
+     * 등록해야할 메서드 조건
+     */
+    protected abstract boolean shouldRegisterMethod(Method method);
+
+    private void registerHandlerPaths(T handler, String[] requestMappingPaths, String[] methodMappingPaths, String httpMethod) {
+        if (requestMappingPaths.length > 0) {
+            for (String requestMappingPath : requestMappingPaths) {
+                if (!httpMethod.isEmpty() && methodMappingPaths.length == 0) {
+                    getHandlerMap().put("/" + httpMethod + normalizePath(requestMappingPath), handler);
+                } else {
+                    for (String methodMappingPath : methodMappingPaths) {
+                        getHandlerMap().put("/" + httpMethod + normalizePath(requestMappingPath) + normalizePath(methodMappingPath), handler);
+                    }
+                }
+            }
+        } else {
+            for (String methodMappingPath : methodMappingPaths) {
+                getHandlerMap().put("/" + httpMethod + normalizePath(methodMappingPath), handler);
+            }
+        }
+    }
+
+
+    private String[] getRequestMappingValue(RequestMapping requestMapping) {
+        return Objects.isNull(requestMapping) ? new String[]{} : requestMapping.value();
+    }
+
+    private String[] getMethodPaths(Method method, StringBuilder httpMethod) {
+        for (Annotation annotation : method.getDeclaredAnnotations()) {
+            if (annotation instanceof GetMapping getMapping) {
+                httpMethod.append("GET");
+                return getMapping.value();
+            } else if (annotation instanceof PostMapping postMapping) {
+                httpMethod.append("POST");
+                return postMapping.value();
+            } else if (annotation instanceof PutMapping putMapping) {
+                httpMethod.append("PUT");
+                return putMapping.value();
+            } else if (annotation instanceof DeleteMapping deleteMapping) {
+                httpMethod.append("DELETE");
+                return deleteMapping.value();
+            } else if (annotation instanceof PatchMapping patchMapping) {
+                httpMethod.append("PATCH");
+                return patchMapping.value();
+            }
+        }
+        return new String[]{};
+    }
 }

@@ -16,6 +16,7 @@ public abstract class AbstractNettyHandlerMapping implements NettyHandlerMapping
     public NettyUrlPathHelper getUrlPathHelper() {
         return urlPathHelper;
     }
+
     public MethodHandler getDefaultHandler() {
         return defaultMethodHandler;
     }
@@ -34,12 +35,11 @@ public abstract class AbstractNettyHandlerMapping implements NettyHandlerMapping
      * @throws Exception
      */
     @Override
-    public HandlerExecution getHandler(FullHttpRequest request) throws Exception {
+    public HandlerExecution getHandler(FullHttpRequest request) {
         // AbstractNettyUrlHandlerMapping
         HandlerExecution handlerExecution = getHandlerInternal(request);
 
         if (handlerExecution == null) {
-            log.error("there's no methodHandler");
             // TODO : Default 를 해야하나? -> api 정보 같은?
             if (Objects.nonNull(defaultMethodHandler)) {
                 handlerExecution = HandlerExecution.builder()
@@ -59,7 +59,7 @@ public abstract class AbstractNettyHandlerMapping implements NettyHandlerMapping
         return "/" + request.method().name() + normalizePath(request.uri());
     }
 
-    protected abstract HandlerExecution getHandlerInternal(FullHttpRequest request) throws Exception;
+    protected abstract HandlerExecution getHandlerInternal(FullHttpRequest request);
 
     // convert to {/asd/ , asd/ , asd} -> /asd
     protected String normalizePath(String path) {

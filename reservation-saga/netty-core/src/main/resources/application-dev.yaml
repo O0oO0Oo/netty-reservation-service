@@ -6,18 +6,26 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: master
     password: master
+    hikari:
+      maximum-pool-size: 100 # 어느정도가 적당한지
+      minimum-idle: 20
 
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql=true:
+        format_sql: false
+        jdbc:
+          batch_size: 1000         # 한 번에 배치로 삽입할 엔티티 수
+        order_inserts: true       # INSERT 문을 배치로 실행하도록 설정
+        order_updates: true       # UPDATE 문을 배치로 실행하도록 설정
+
 logging:
   level:
-    org.springframework.transaction: DEBUG
-    org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+    org.springframework.transaction: WARN
+    org.springframework.orm.jpa.JpaTransactionManager: WARN
     io.confluent.kafka.serializers.protobuf:
       KafkaProtobufSerializerConfig: WARN
       KafkaProtobufDeserializerConfig: WARN
@@ -26,12 +34,19 @@ logging:
     org.apache.kafka.clients.consumer.ConsumerConfig: WARN
 #    org.springframework.jdbc.datasource.DataSourceTransactionManager: DEBUG
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-
 kafka:
   bootstrap-servers: "192.168.35.5:9092,192.168.35.5:9093,192.168.35.5:9094"
   schema-registry-url: "http://192.168.35.5:8081"
+
+# mysql
+mysql:
+  master:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.35.179:3306/reservation-saga
+    username: master
+    password: master
+  slaves:
+    - driverClassName: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://192.168.35.179:3406/reservation-saga
+      username: slave
+      password: slave

@@ -6,20 +6,26 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import lombok.NoArgsConstructor;
+import org.server.rsaga.netty.http.handler.AsyncRouteMappingHandler;
 import org.server.rsaga.netty.http.handler.ExceptionHandler;
 import org.server.rsaga.netty.http.handler.RouteMappingHandler;
 
-@NoArgsConstructor
 public class HttpPipelineInitializer extends ChannelInitializer<Channel> {
-    private boolean isClient = false;
+    private final boolean isClient;
+    private final RouteMappingHandler routeMappingHandler;
+    private final AsyncRouteMappingHandler asyncRouteMappingHandler;
+    private final ExceptionHandler exceptionHandler;
 
-    /**
-     * @param isClient default true
-     */
-    public HttpPipelineInitializer(boolean isClient) {
+    public HttpPipelineInitializer(boolean isClient,
+                                   RouteMappingHandler routeMappingHandler,
+                                   AsyncRouteMappingHandler asyncRouteMappingHandler,
+                                   ExceptionHandler exceptionHandler) {
         this.isClient = isClient;
+        this.routeMappingHandler = routeMappingHandler;
+        this.asyncRouteMappingHandler = asyncRouteMappingHandler;
+        this.exceptionHandler = exceptionHandler;
     }
+
 
     @Override
     protected void initChannel(Channel ch) throws Exception {
@@ -32,7 +38,8 @@ public class HttpPipelineInitializer extends ChannelInitializer<Channel> {
         }
 
         pipeline.addLast("httpObjectAggregator", new HttpObjectAggregator(512 * 1024));
-        pipeline.addLast("routeMappingHandler", new RouteMappingHandler());
-        pipeline.addLast("exceptionHandler", new ExceptionHandler());
+        pipeline.addLast("routeMappingHandler", routeMappingHandler);
+        pipeline.addLast("AsyncRequestHandler", asyncRouteMappingHandler);
+        pipeline.addLast("exceptionHandler", exceptionHandler);
     }
 }

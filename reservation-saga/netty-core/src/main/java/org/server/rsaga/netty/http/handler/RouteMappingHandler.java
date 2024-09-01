@@ -1,92 +1,66 @@
 package org.server.rsaga.netty.http.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.concurrent.EventExecutorGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.server.rsaga.common.dto.FullHttpResponseBuilder;
-import org.server.rsaga.netty.config.SpringApplicationContext;
 import org.server.rsaga.netty.http.mapping.HandlerExecution;
 import org.server.rsaga.netty.http.mapping.NettyHandlerMapping;
-import org.springframework.boot.actuate.endpoint.web.WebEndpointResponse;
-import org.springframework.boot.actuate.metrics.export.prometheus.PrometheusOutputFormat;
-import org.springframework.boot.actuate.metrics.export.prometheus.PrometheusScrapeEndpoint;
 
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * todo refactoring
+ * 동기적 응답을 위한 핸들러.
  */
 @Slf4j
 @ChannelHandler.Sharable
 public class RouteMappingHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
-
     private final NettyHandlerMapping nettyHandlerMapping;
-    private final PrometheusScrapeEndpoint prometheusScrapeEndpoint;
+    private final EventExecutorGroup executorGroup;
 
-    public RouteMappingHandler() {
-        this.nettyHandlerMapping = SpringApplicationContext.getBean(NettyHandlerMapping.class);
-        this.prometheusScrapeEndpoint = SpringApplicationContext.getBean(PrometheusScrapeEndpoint.class);
+    public RouteMappingHandler(NettyHandlerMapping nettyHandlerMapping, EventExecutorGroup executorGroup) {
+        this.nettyHandlerMapping = nettyHandlerMapping;
+        this.executorGroup = executorGroup;
     }
 
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-        String uri = msg.uri();
+    protected void messageReceived(ChannelHandlerContext ctx, FullHttpRequest msg) {
+        msg.retain(); // 비동기 작업에 들어가면서 참조 카운트가 감소하게 된다.
+        executorGroup.submit(() -> handleRequest(ctx, msg));
+    }
 
-        if (uri.startsWith("/actuator/prometheus")) {
-            FullHttpResponse response = handlePrometheusActuatorRequest();
-            ctx.writeAndFlush(response);
-        } else {
+    private void handleRequest(ChannelHandlerContext ctx, FullHttpRequest msg) {
+        try {
             HandlerExecution methodHandler = nettyHandlerMapping.getHandler(msg);
-            FullHttpResponse response = createResponse(methodHandler);
-            ctx.writeAndFlush(response);
-        }
-    }
-
-    /**
-     * Prometheus 메트릭 응답
-     */
-    private FullHttpResponse handlePrometheusActuatorRequest() {
-        WebEndpointResponse<byte[]> response = prometheusScrapeEndpoint.scrape(
-                PrometheusOutputFormat.CONTENT_TYPE_PROTOBUF,
-                null
-        );
-
-        byte[] metricsData = response.getBody();
-
-        FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(
-                HttpVersion.HTTP_1_1,
-                HttpResponseStatus.OK,
-                Unpooled.wrappedBuffer(metricsData)
-        );
-
-        fullHttpResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(metricsData.length));
-        fullHttpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/vnd.google.protobuf; proto=io.prometheus.client.MetricFamily; encoding=delimited");
-        fullHttpResponse.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
-        return fullHttpResponse;
-    }
-
-    private FullHttpResponse createResponse(HandlerExecution methodHandler) throws JsonProcessingException, InvocationTargetException, IllegalAccessException {
-        if (methodHandler == null) {
-            return FullHttpResponseBuilder.builder()
-                    .body("The requested resource was not found.")
-                    .statusCode(HttpResponseStatus.NOT_FOUND)
-                    .build();
-        }
-        else {
-            Object retValue = methodHandler.execute();
-
-            if (retValue instanceof FullHttpResponse) {
-                return (FullHttpResponse) retValue;
+            if (methodHandler != null) {
+                FullHttpResponse response = createResponse(methodHandler);
+                ctx.writeAndFlush(response);
             } else {
-                return FullHttpResponseBuilder.builder()
-                        .body(retValue)
-                        .statusCode(HttpResponseStatus.OK)
-                        .build();
+                // 매칭되는 컨트롤러 동기적 메서드가 없다면 비동기적 메서드를 찾는다.
+                ctx.fireChannelRead(msg.retain());
             }
+        } catch (Exception e) {
+            ctx.fireExceptionCaught(e);
+        } finally {
+            msg.release();
+        }
+    }
+
+    private FullHttpResponse createResponse(HandlerExecution methodHandler) throws InvocationTargetException, IllegalAccessException {
+        Object retValue = methodHandler.execute();
+
+        if (retValue instanceof FullHttpResponse fullHttpResponse) {
+            return fullHttpResponse;
+        } else {
+            return FullHttpResponseBuilder.builder()
+                    .body(retValue)
+                    .statusCode(HttpResponseStatus.OK)
+                    .build();
         }
     }
 }

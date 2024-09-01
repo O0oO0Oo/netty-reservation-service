@@ -58,6 +58,11 @@ public abstract class AbstractSagaPromise<I, R extends SagaMessage<?, ?>> implem
     }
 
     @Override
+    public Promise<R> getPromise() {
+        return this.executePromise;
+    }
+
+    @Override
     public Throwable cause() {
         return executePromise.cause();
     }

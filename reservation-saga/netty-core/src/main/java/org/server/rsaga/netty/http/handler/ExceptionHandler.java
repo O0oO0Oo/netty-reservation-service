@@ -1,5 +1,6 @@
 package org.server.rsaga.netty.http.handler;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -15,9 +16,15 @@ import org.server.rsaga.common.exception.ErrorCode;
 import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Collectors;
 
-// TODO : Exception Handler 구현, ControllerAdvice
+/**
+ * 예외 처리 핸들러.
+ */
 @Slf4j
+@ChannelHandler.Sharable
 public class ExceptionHandler extends ChannelHandlerAdapter {
+
+    public ExceptionHandler() {
+    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
@@ -61,10 +68,9 @@ public class ExceptionHandler extends ChannelHandlerAdapter {
         }
 
         else {
-            // todo : 수정해야함.
             ErrorResponse errorResponse = ErrorResponse.of(
                     "000",
-                    "Internal Server Error. " + cause.getMessage()
+                    "Internal Server Error."
             );
 
             responseBuilder = responseBuilder
