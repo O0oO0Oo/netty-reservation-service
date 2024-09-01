@@ -2,6 +2,7 @@ package org.server.rsaga.reservableitem.infra.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.exception.CustomException;
@@ -13,6 +14,7 @@ import org.server.rsaga.reservableitem.infra.repository.ReservableItemCustomRepo
 import org.server.rsaga.reservableitem.infra.repository.ReservableItemJpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -59,66 +61,48 @@ public class ReservableItemCustomRepositoryImpl implements ReservableItemCustomR
         );
     }
 
-    // todo : Criteria 로 변경
     @Override
     public List<ReservableItem> findExactMatchReservableItemsWithTimesBatch(Set<ReservableItemSearchDTO> ids) {
-        StringBuilder jpql = new StringBuilder("SELECT DISTINCT ri FROM ReservableItem ri " +
-                "JOIN FETCH ri.reservableTimes rt WHERE ");
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ReservableItem> query = cb.createQuery(ReservableItem.class);
+        Root<ReservableItem> root = query.from(ReservableItem.class);
 
-        int index = 0;
+        root.fetch("reservableTimes", JoinType.INNER);
 
-        for (ReservableItemSearchDTO ignored : ids) {
-            if (index > 0) {
-                jpql.append(" OR ");
-            }
-            jpql.append("(ri.id = :reservableItemId").append(index)
-                    .append(" AND ri.businessId = :businessId").append(index)
-                    .append(" AND rt.id = :reservableTimeId").append(index).append(")");
-            index++;
-        }
-
-        Query query = entityManager.createQuery(jpql.toString(), ReservableItem.class);
-
-        // 초기화
-        index = 0;
-
+        List<Predicate> predicates = new ArrayList<>();
         for (ReservableItemSearchDTO dto : ids) {
-            query.setParameter("reservableItemId" + index, dto.reservableItemId());
-            query.setParameter("businessId" + index, dto.businessId());
-            query.setParameter("reservableTimeId" + index, dto.reservableTimeId());
-            index++;
+            Predicate idPredicate = cb.equal(root.get("id"), dto.reservableItemId());
+            Predicate businessPredicate = cb.equal(root.get("businessId"), dto.businessId());
+            Predicate timePredicate = cb.equal(root.join("reservableTimes").get("id"), dto.reservableTimeId());
+
+            Predicate combinedPredicate = cb.and(idPredicate, businessPredicate, timePredicate);
+            predicates.add(combinedPredicate);
         }
 
-        return query.getResultList();
+        query.select(root).distinct(true).where(cb.or(predicates.toArray(new Predicate[0])));
+
+        return entityManager.createQuery(query).getResultList();
     }
 
     @Override
     public List<ReservableItem> findByIdAndReservableTimeWithBatch(Set<ReservableItemQueryDto> ids) {
-        StringBuilder jpql = new StringBuilder("SELECT DISTINCT ri FROM ReservableItem ri " +
-                "JOIN FETCH ri.reservableTimes rt WHERE ");
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ReservableItem> query = cb.createQuery(ReservableItem.class);
+        Root<ReservableItem> root = query.from(ReservableItem.class);
 
-        int index = 0;
+        root.fetch("reservableTimes", JoinType.INNER);
 
-        for (ReservableItemQueryDto id : ids) {
-            if (index > 0) {
-                jpql.append(" OR ");
-            }
-            jpql.append("(ri.id = :reservableItemId").append(index)
-                    .append(" AND rt.id = :reservableTimeId").append(index).append(")");
-            index++;
-        }
-
-        Query query = entityManager.createQuery(jpql.toString(), ReservableItem.class);
-
-        // 초기화
-        index = 0;
-
+        ArrayList<Predicate> predicates = new ArrayList<>();
         for (ReservableItemQueryDto dto : ids) {
-            query.setParameter("reservableItemId" + index, dto.reservableItemId());
-            query.setParameter("reservableTimeId" + index, dto.reservableTimeId());
-            index++;
+            Predicate idPredicate = cb.equal(root.get("id"), dto.reservableItemId());
+            Predicate timdPredicate = cb.equal(root.get("reservableTimes").get("id"), dto.reservableTimeId());
+
+            Predicate combinePredicate = cb.and(idPredicate, timdPredicate);
+            predicates.add(combinePredicate);
         }
 
-        return query.getResultList();
+        query.select(root).distinct(true).where(cb.or(predicates.toArray(new Predicate[0])));
+
+        return entityManager.createQuery(query).getResultList();
     }
 }
