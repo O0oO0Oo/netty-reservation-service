@@ -87,6 +87,9 @@ public class PaymentMessageEventService {
         return SagaMessage.of(key, responsePayload, message.metadata(), Message.Status.RESPONSE_SUCCESS);
     }
 
+    /**
+     * {@link org.server.rsaga.payment.PaymentRequestOuterClass.PaymentRequest} 처리 메서드 
+     */
     @Transactional
     public List<Message<String, CreateReservationEvent>> consumeBulkPaymentEvent(List<Message<String, CreateReservationEvent>> messages) {
         List<Message<String, CreateReservationEvent>> responses = new ArrayList<>(messages.size());
@@ -100,6 +103,9 @@ public class PaymentMessageEventService {
         return responses;
     }
 
+    /**
+     * {@link PaymentType} 에 따른 분류
+     */
     private Map<PaymentType, List<Message<String, CreateReservationEvent>>> classifyMessagesByPaymentType(
             List<Message<String, CreateReservationEvent>> messages,
             List<Message<String, CreateReservationEvent>> responses
@@ -118,12 +124,15 @@ public class PaymentMessageEventService {
                 messagesByPaymentTypeMap.get(paymentType).add(message);
             } catch (IllegalArgumentException e) {
                 // 지원하지 않는 타입이라면 실패 응답
-                responses.add(createFailureResponse(message, ErrorCode.PAYMENT_TYPE_NOT_FOUND));
+                responses.add(SagaMessage.createFailureResponse(message, ErrorCode.PAYMENT_TYPE_NOT_FOUND));
             }
         }
         return messagesByPaymentTypeMap;
     }
 
+    /**
+     * {@link PaymentType} WALLET 에 대한 처리
+     */
     private List<Message<String, CreateReservationEvent>> payFromWalletBulk(List<Message<String, CreateReservationEvent>> messages) {
         if(messages == null || messages.isEmpty()) return Collections.emptyList();
 
@@ -138,6 +147,9 @@ public class PaymentMessageEventService {
         return generateResponseMessages(messages, walletMapByUserId, paymentMapByReservationId);
     }
 
+    /**
+     * 메시지에서 user id 추출 
+     */
     private Set<Long> extractUserIdIdsFromMessages(List<Message<String, CreateReservationEvent>> messages) {
         Set<Long> userIds = new HashSet<>();
         for (Message<String, CreateReservationEvent> message : messages) {
@@ -148,6 +160,9 @@ public class PaymentMessageEventService {
         return userIds;
     }
 
+    /**
+     * 메시지에서 reservation id 추출
+     */
     private Set<Long> extractReservationIdIdsFromMessages(List<Message<String, CreateReservationEvent>> messages) {
         Set<Long> reservationIds = new HashSet<>();
         for (Message<String, CreateReservationEvent> message : messages) {
@@ -194,7 +209,7 @@ public class PaymentMessageEventService {
         long requestAmount = requestPayload.getPay().getAmount();
 
         if (!walletMapByUserId.containsKey(userId)) {
-            return createFailureResponse(message, ErrorCode.WALLET_NOT_FOUND);
+            return SagaMessage.createFailureResponse(message, ErrorCode.WALLET_NOT_FOUND);
         }
 
         Wallet wallet = walletMapByUserId.get(userId);
@@ -240,7 +255,7 @@ public class PaymentMessageEventService {
             return createSuccessResponse(message, userId);
         } catch (CustomException e) {
             // 잔고 부족, 실패 메시지
-            return createFailureResponse(message, e.getErrorCode());
+            return SagaMessage.createFailureResponse(message, e.getErrorCode());
         }
     }
 
@@ -259,17 +274,17 @@ public class PaymentMessageEventService {
 
         Payment payment = paymentMapByReservationId.get(reservationId);
 
-        if(payment != null) {
-            payment.cancel();
-            wallet.addBalance(new Money(requestAmount));
+        // 결제기록 찾을 수 없다.
+        if (payment == null) {
+            return SagaMessage.createFailureResponse(message, ErrorCode.PAYMENT_NOT_FOUND);
+        }
 
-            // 성공 메시지
-            return createSuccessResponse(message, userId);
-        }
-        else {
-            // 결제기록 찾을 수 없다.
-            return createFailureResponse(message, ErrorCode.PAYMENT_NOT_FOUND);
-        }
+        // 결제 취소
+        payment.cancel();
+        wallet.addBalance(new Money(requestAmount));
+
+        // 성공 메시지
+        return createSuccessResponse(message, userId);
     }
 
     private Message<String, CreateReservationEvent> createSuccessResponse(Message<String, CreateReservationEvent> message, Long userId) {
@@ -279,14 +294,5 @@ public class PaymentMessageEventService {
                 .setPaymentResponse(userId)
                 .build();
         return SagaMessage.of(key, responsePayload, message.metadata(), Message.Status.RESPONSE_SUCCESS);
-    }
-
-    private Message<String, CreateReservationEvent> createFailureResponse(Message<String, CreateReservationEvent> message, ErrorCode errorCode) {
-        Map<String, byte[]> metadata = message.metadata();
-
-        metadata.put(ErrorDetails.ERROR_CODE, errorCode.getCode().getBytes());
-        metadata.put(ErrorDetails.ERROR_MESSAGE, errorCode.getMessage().getBytes());
-
-        return SagaMessage.of(message.key(), message.payload(), metadata, Message.Status.RESPONSE_FAILED);
     }
 }

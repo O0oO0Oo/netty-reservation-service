@@ -8,7 +8,7 @@ public interface Message<K, V> {
     enum Status{
         REQUEST,
         RESPONSE_SUCCESS,
-        RESPONSE_FAILED,
+        RESPONSE_FAILURE,
         IN_PROGRESS;
     }
     K key();

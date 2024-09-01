@@ -40,7 +40,7 @@ public class NettyApplication {
         AsyncRouteMappingHandler asyncRouteMappingHandler = new AsyncRouteMappingHandler(
                 SpringApplicationContext.getBean(NettySimpleUrlAsyncHandlerMapping.class),
                 new DefaultEventExecutorGroup(
-                        16,
+                        4,
                         new DefaultExecutorServiceFactory("async-executor-thread-group")
                 )
         );

@@ -14,9 +14,9 @@ import java.net.InetSocketAddress;
 
 @Slf4j
 public class NettyReservationServer {
-    private String host;
-    private int port;
-    private ChannelInitializer<Channel> channelInitializer;
+    private final String host;
+    private final int port;
+    private final ChannelInitializer<Channel> channelInitializer;
 
     public NettyReservationServer(String host, int port, ChannelInitializer<Channel> channelInitializer) {
         this.host = host;
@@ -49,6 +49,7 @@ public class NettyReservationServer {
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();

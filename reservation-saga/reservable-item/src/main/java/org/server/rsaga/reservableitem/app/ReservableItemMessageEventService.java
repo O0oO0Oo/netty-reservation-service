@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.exception.CustomException;
 import org.server.rsaga.common.exception.ErrorCode;
-import org.server.rsaga.messaging.message.ErrorDetails;
 import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.messaging.schema.reservation.CreateReservationEventBuilder;
 import org.server.rsaga.reservableitem.UpdateReservableItemQuantityRequestOuterClass;
@@ -152,13 +151,13 @@ public class ReservableItemMessageEventService {
                 new ForeignKey(request.getBusinessId()),
                 request.getReservableTimeId()
         );
-
-        if (reservableItemMap.containsKey(queryDTO)) {
-            return createSuccessResponse(message, reservableItemMap.get(queryDTO), request);
-        } else {
-            // 아이템을 찾을 수 없음.
-            return createFailureResponse(message, ErrorCode.RESERVABLE_ITEM_NOT_FOUND);
+        
+        // 없다면 실패 응답
+        if (!reservableItemMap.containsKey(queryDTO)) {
+            return SagaMessage.createFailureResponse(message, ErrorCode.RESERVABLE_ITEM_NOT_FOUND);
         }
+        
+        return createSuccessResponse(message, reservableItemMap.get(queryDTO), request);
     }
 
     private Message<String, CreateReservationEvent> createSuccessResponse(
@@ -179,26 +178,21 @@ public class ReservableItemMessageEventService {
 
         // 아이템이 이용 가능한지
         if (!reservableItem.isTimeAvailable(request.getReservableTimeId())){
-            return createFailureResponse(message, ErrorCode.RESERVABLE_ITEM_IS_NOT_AVAILABLE);
+            return SagaMessage.createFailureResponse(message, ErrorCode.RESERVABLE_ITEM_IS_NOT_AVAILABLE);
         }
+
         // 요청한 갯수가 인당 구매제한 보다 적은지 확인
         else if(!reservableItem.checkRequestQuantityLowerThenLimit(request.getRequestQuantity())) {
-            return createFailureResponse(message, ErrorCode.EXCEED_PURCHASE_LIMIT);
+            return SagaMessage.createFailureResponse(message, ErrorCode.EXCEED_PURCHASE_LIMIT);
         } else {
             return SagaMessage.of(key, responsePayload, message.metadata(), Message.Status.RESPONSE_SUCCESS);
 
         }
     }
 
-    private Message<String, CreateReservationEvent> createFailureResponse(Message<String, CreateReservationEvent> message, ErrorCode errorCode) {
-        // 에러 메시지 작성
-        Map<String, byte[]> metadata = message.metadata();
-        metadata.put(ErrorDetails.ERROR_CODE, errorCode.getCode().getBytes());
-        metadata.put(ErrorDetails.ERROR_MESSAGE, errorCode.getMessage().getBytes());
-
-        return SagaMessage.of(message.key(), message.payload(), message.metadata(), Message.Status.RESPONSE_FAILED);
-    }
-
+    /**
+     * {@link org.server.rsaga.reservableitem.UpdateReservableItemQuantityRequestOuterClass.UpdateReservableItemQuantityRequest} 단건 처리
+     */
     @Transactional
     public Message<String, CreateReservationEvent> consumeUpdateReservableItemQuantityEvent(Message<String, CreateReservationEvent> message) {
         CreateReservationEvent requestPayload = message.payload();
@@ -231,6 +225,10 @@ public class ReservableItemMessageEventService {
         return SagaMessage.of(key, responsePayload, message.metadata(), Message.Status.RESPONSE_SUCCESS);
     }
 
+
+    /**
+     * {@link org.server.rsaga.reservableitem.UpdateReservableItemQuantityRequestOuterClass.UpdateReservableItemQuantityRequest} 벌크 처리
+     */
     @Transactional
     public List<Message<String, CreateReservationEvent>> consumeBulkUpdateReservableItemQuantityEvent(List<Message<String, CreateReservationEvent>> messages) {
         List<Message<String, CreateReservationEvent>> responses = new ArrayList<>(messages.size());
@@ -247,6 +245,9 @@ public class ReservableItemMessageEventService {
         return responses;
     }
 
+    /**
+     * message 에서 검색을 위한 QueryDto 추출 
+     */
     private Set<ReservableItemQueryDto> extractQueryDtosFromMessages(List<Message<String, CreateReservationEvent>> messages) {
         Set<ReservableItemQueryDto> queryDtos = new HashSet<>();
 
@@ -279,14 +280,14 @@ public class ReservableItemMessageEventService {
 
         // 아이템이 없다면 실패 응답
         if (!reservableItemMapById.containsKey(reservableItemId)) {
-            return createFailureResponse(message, ErrorCode.RESERVABLE_ITEM_NOT_FOUND);
+            return SagaMessage.createFailureResponse(message, ErrorCode.RESERVABLE_ITEM_NOT_FOUND);
         }
 
         ReservableItem reservableItem = reservableItemMapById.get(reservableItemId);
 
         // 사용 할 수 없는 시간, 아이템이라면 실패 응답
         if (!reservableItem.isTimeAvailable(reservableTimeId)) {
-            return createFailureResponse(message, ErrorCode.RESERVABLE_ITEM_IS_NOT_AVAILABLE);
+            return SagaMessage.createFailureResponse(message, ErrorCode.RESERVABLE_ITEM_IS_NOT_AVAILABLE);
         }
 
         return (requestQuantity < 0) ?
@@ -294,6 +295,9 @@ public class ReservableItemMessageEventService {
                 handleIncreaseQuantityMessageEvent(message, reservableItem);
     }
 
+    /**
+     * 재고 감소 
+     */
     private Message<String, CreateReservationEvent> handleDecreaseQuantityMessageEvent(
             Message<String, CreateReservationEvent> message,
             ReservableItem reservableItem
@@ -309,10 +313,13 @@ public class ReservableItemMessageEventService {
             );
             return createSuccessResponse(message, reservableItem.getId());
         } catch (CustomException e) {
-            return createFailureResponse(message, e.getErrorCode());
+            return SagaMessage.createFailureResponse(message, e.getErrorCode());
         }
     }
 
+    /**
+     * 재고 복구
+     */
     private Message<String, CreateReservationEvent> handleIncreaseQuantityMessageEvent(
             Message<String, CreateReservationEvent> message,
             ReservableItem reservableItem
@@ -328,7 +335,7 @@ public class ReservableItemMessageEventService {
             );
             return createSuccessResponse(message, reservableItem.getId());
         } catch (CustomException e) {
-            return createFailureResponse(message, e.getErrorCode());
+            return SagaMessage.createFailureResponse(message, e.getErrorCode());
         }
     }
 
