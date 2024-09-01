@@ -1,8 +1,8 @@
 package org.server.rsaga.saga.state.impl;
 
+import org.server.rsaga.common.exception.CustomException;
 import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.saga.api.SagaMessage;
-import org.server.rsaga.saga.exception.RemoteServiceException;
 import org.server.rsaga.saga.promise.SagaPromise;
 import org.server.rsaga.saga.state.SagaState;
 
@@ -18,7 +18,7 @@ public class InMemorySagaState<K, V> implements SagaState<K, V> {
     public void updateState(SagaMessage<K, V> message) {
         if (message.status().equals(Message.Status.RESPONSE_FAILED)) {
             setFailure(
-                   message, new RemoteServiceException(message.errorCode(), message.errorMessage())
+                   message, new CustomException(message.errorCode(), message.errorMessage())
             );
         }
         else {

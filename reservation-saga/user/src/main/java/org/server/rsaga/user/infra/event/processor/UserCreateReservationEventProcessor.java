@@ -2,24 +2,27 @@ package org.server.rsaga.user.infra.event.processor;
 
 import lombok.RequiredArgsConstructor;
 import org.server.rsaga.common.messaging.MessagingTopics;
-import org.server.rsaga.messaging.adapter.processor.KafkaMessageProcessor;
+import org.server.rsaga.messaging.adapter.processor.KafkaBulkMessageProcessor;
+import org.server.rsaga.messaging.adapter.processor.KafkaSingleMessageProcessor;
 import org.server.rsaga.messaging.adapter.processor.factory.KafkaMessageProcessorFactory;
-import org.server.rsaga.messaging.adapter.processor.strategy.KafkaMessageProcessorType;
+import org.server.rsaga.messaging.adapter.processor.strategy.KafkaBulkMessageProcessorType;
+import org.server.rsaga.messaging.adapter.processor.strategy.KafkaSingleMessageProcessorType;
 import org.server.rsaga.reservation.CreateReservationEvent;
 import org.server.rsaga.user.app.UserMessageEventService;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import java.util.Properties;
 
-@Component
+@Configuration
 @RequiredArgsConstructor
 public class UserCreateReservationEventProcessor {
     private final KafkaMessageProcessorFactory processorFactory;
     private final UserMessageEventService userMessageEventService;
 
     @Bean
-    public KafkaMessageProcessor<String, CreateReservationEvent> createReservationEventVerifyUserKafkaMessageProcessor() {
+    public KafkaBulkMessageProcessor<String, CreateReservationEvent> createReservationEventVerifyUserKafkaBulkMessageProcessor() {
         Properties config = new Properties();
         config.put("producer.topic", MessagingTopics.CREATE_RESERVATION_RESPONSE.name());
         config.put("dead.letter.topic", MessagingTopics.CREATE_RESERVATION_RESPONSE.name());
@@ -30,8 +33,8 @@ public class UserCreateReservationEventProcessor {
 
         return processorFactory.create(
                 config,
-                userMessageEventService::consumerVerifyUserEvent,
-                KafkaMessageProcessorType.MULTI_THREADED
+                userMessageEventService::consumerBulkVerifyUserEvent,
+                KafkaBulkMessageProcessorType.MULTI_THREADED
         );
     }
 }

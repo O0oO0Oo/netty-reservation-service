@@ -1,9 +1,14 @@
 dependencies {
+    api project(":common")
     api project(":messaging-core")
     implementation "commons-beanutils:commons-beanutils:1.9.4"
     implementation 'com.google.guava:guava:33.2.1-jre'
 }
 
-tasks.named('bootJar') {
+bootJar {
     enabled = false
+}
+
+jar {
+    enabled = true
 }

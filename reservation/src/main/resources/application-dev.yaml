@@ -9,11 +9,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
-
-  main:
-    web-application-type: none
 
 logging:
   level:

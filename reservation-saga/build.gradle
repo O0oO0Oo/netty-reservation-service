@@ -51,14 +51,11 @@ subprojects {
 		compileOnly 'org.projectlombok:lombok'
 		annotationProcessor 'org.projectlombok:lombok'
 
-		// tomcat 서버 제외
-		implementation('org.springframework.boot:spring-boot-starter-web')
-				{
-					exclude(group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat')
-				}
+		implementation('org.springframework.boot:spring-boot-starter-web') {
+			exclude(group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat')
+		}
 
 		implementation 'io.netty:netty-all:latest.release'
-
 		implementation 'com.google.protobuf:protobuf-java:3.21.7'
 	}
 

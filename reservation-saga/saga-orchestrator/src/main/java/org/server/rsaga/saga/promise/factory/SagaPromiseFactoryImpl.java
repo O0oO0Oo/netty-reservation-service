@@ -1,8 +1,9 @@
 package org.server.rsaga.saga.promise.factory;
 
 import com.google.common.base.Preconditions;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.DefaultExecutorServiceFactory;
+import io.netty.util.concurrent.EventExecutorGroup;
 import org.server.rsaga.saga.api.SagaMessage;
 import org.server.rsaga.saga.promise.SagaPromise;
 import org.server.rsaga.saga.promise.strategy.SagaPromiseCreationStrategy;
@@ -21,14 +22,18 @@ import java.util.function.Consumer;
  */
 public class SagaPromiseFactoryImpl implements SagaPromiseFactory{
     private final Map<StepType, SagaPromiseCreationStrategy> strategies;
-    private final EventLoopGroup eventLoopGroup;
+    private final EventExecutorGroup eventExecutorGroup;
 
     public SagaPromiseFactoryImpl() {
-        this(new NioEventLoopGroup());
+        this(new DefaultEventExecutorGroup(
+                        16,
+                        new DefaultExecutorServiceFactory("saga-thread-group")
+                )
+        );
     }
 
-    public SagaPromiseFactoryImpl(EventLoopGroup eventLoopGroup) {
-        this.eventLoopGroup = eventLoopGroup;
+    public SagaPromiseFactoryImpl(EventExecutorGroup eventExecutorGroup) {
+        this.eventExecutorGroup = eventExecutorGroup;
         this.strategies = new EnumMap<>(StepType.class);
         ServiceLoader<SagaPromiseCreationStrategy> loader = ServiceLoader.load(SagaPromiseCreationStrategy.class);
         for (SagaPromiseCreationStrategy strategy : loader) {
@@ -39,7 +44,7 @@ public class SagaPromiseFactoryImpl implements SagaPromiseFactory{
     @Override
     public <I, R extends SagaMessage<?, ?>> SagaPromise<I, R> createSagaPromise(StepType stepType, Map<StepType, Consumer<I>> sagaSteps) {
         SagaPromiseCreationStrategy strategy = getStrategy(stepType);
-        return strategy.createSagaPromise(sagaSteps, eventLoopGroup.next());
+        return strategy.createSagaPromise(sagaSteps, eventExecutorGroup.next());
     }
 
     /**

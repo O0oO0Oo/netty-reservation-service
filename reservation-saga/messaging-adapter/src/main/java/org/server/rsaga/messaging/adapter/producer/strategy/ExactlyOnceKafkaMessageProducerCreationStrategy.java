@@ -16,13 +16,14 @@ public class ExactlyOnceKafkaMessageProducerCreationStrategy implements KafkaMes
 
     @Override
     public <K, V> KafkaMessageProducer<K, V> createProducer(Properties config) {
+        checkConfig(config);
         Properties properties = propertiesUtil.exactlyOnceProtobufProducerProps(config);
         return new ExactlyOnceKafkaMessageProducer<>(properties);
     }
 
-    @Override
     public void checkConfig(Properties config) {
         isContainsKey(config, ProducerConfig.TRANSACTIONAL_ID_CONFIG);
+        config.putIfAbsent(ProducerConfig.RETRIES_CONFIG, "5");
     }
 
     private void isContainsKey(Properties config, String key) {

@@ -54,7 +54,7 @@ class BusinessMessageEventServiceTest {
             when(business.getId()).thenReturn(BUSINESS_ID);
 
             // when
-            Message<String, CreateReservationEvent> responseMessage = businessMessageEventService.consumeVerifyBusinessEvent(message);
+            Message<String, CreateReservationEvent> responseMessage = businessMessageEventService.consumeSingleVerifyBusinessEvent(message);
 
             // then
             VerifyBusinessResponseOuterClass.VerifyBusinessResponse verifiedBusiness = responseMessage.payload()
@@ -77,7 +77,7 @@ class BusinessMessageEventServiceTest {
             when(businessCustomRepository.findByIdOrElseThrow(BUSINESS_ID)).thenThrow(new CustomException(ErrorCode.BUSINESS_NOT_FOUND));
 
             // when
-            CustomException customException = assertThrows(CustomException.class, () -> businessMessageEventService.consumeVerifyBusinessEvent(message));
+            CustomException customException = assertThrows(CustomException.class, () -> businessMessageEventService.consumeSingleVerifyBusinessEvent(message));
 
             // then
             assertEquals(ErrorCode.BUSINESS_NOT_FOUND, customException.getErrorCode(),

@@ -2,6 +2,7 @@ package org.server.rsaga.saga.promise;
 
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import io.netty.util.concurrent.Promise;
 import org.server.rsaga.saga.api.SagaMessage;
 
 import java.util.concurrent.ExecutionException;
@@ -98,6 +99,11 @@ public interface SagaPromise<I, R extends SagaMessage<?, ?>> extends GenericFutu
      * @param listener {@link io.netty.util.concurrent.Promise} 의 listener
      */
     void addListener(GenericFutureListener<? extends Future<R>> listener);
+
+    /**
+     * @return 응답 결과에 대한 {@link Promise} 를 리턴한다.
+     */
+    Promise<R> getPromise();
 
     Throwable cause();
 }

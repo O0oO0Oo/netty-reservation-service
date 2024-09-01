@@ -1,6 +1,7 @@
 package org.server.rsaga.reservation.app;
 
 import io.hypersistence.tsid.TSID;
+import io.netty.util.concurrent.Promise;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,33 +50,14 @@ class ReservationSagaServiceTest {
                 paymentType
         );
 
-        SagaMessage<String, CreateReservationEvent> sagaResult = mock(SagaMessage.class);
-
-        CreateReservationEvent createdReservationEvent = CreateReservationEventBuilder.builder()
-                .setRegisterReservationFinalResponse(
-                        correlationId.toLong(),
-                        request.businessId(),
-                        request.userId(),
-                        request.reservableItemId(),
-                        request.reservableTimeId(),
-                        request.requestQuantity()
-                )
-                .build();
+        Promise<SagaMessage<String, CreateReservationEvent>> sagaResult = mock(Promise.class);
 
         when(sagaCoordinator.start(any())).thenReturn(sagaResult);
-        when(sagaResult.payload()).thenReturn(createdReservationEvent);
 
         // when
-        ReservationDetailsResponse response = reservationSagaService.createReservation(request);
+        Promise<ReservationDetailsResponse> reservation = reservationSagaService.createReservation(request);
 
         // then
         verify(sagaCoordinator).start(any(SagaMessage.class));
-        assertNotNull(response);
-        assertEquals(correlationId.toLong(), response.reservationId());
-        assertEquals(1L, response.businessId());
-        assertEquals(1L, response.userId());
-        assertEquals(1L, response.reservableItemId());
-        assertEquals(1L, response.reservableTimeId());
-        assertEquals(5L, response.quantity());
     }
 }

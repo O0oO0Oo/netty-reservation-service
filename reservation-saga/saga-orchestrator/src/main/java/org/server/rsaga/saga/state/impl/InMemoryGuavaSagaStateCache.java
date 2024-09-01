@@ -5,7 +5,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
 import io.hypersistence.tsid.TSID;
 import lombok.extern.slf4j.Slf4j;
-import org.server.rsaga.saga.api.SagaMessage;
 import org.server.rsaga.saga.state.SagaState;
 import org.server.rsaga.saga.state.SagaStateCache;
 
@@ -14,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class InMemoryGuavaSagaStateCache<K, V> implements SagaStateCache<K, V> {
-    private int maximumCacheSize = 20000;
-    private int expireDuration = 30;
+    private int maximumCacheSize = 100000;
+    private int expireDuration = 120;
 
     public InMemoryGuavaSagaStateCache(int maximumCacheSize, int expireDuration) {
         this.maximumCacheSize = maximumCacheSize;

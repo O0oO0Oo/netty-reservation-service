@@ -7,6 +7,7 @@ import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.messaging.producer.MessageProducer;
 import org.server.rsaga.messaging.util.DeadLetterHandler;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -20,7 +21,7 @@ public class KafkaDeadLetterHandler<K, V> implements DeadLetterHandler<K, V> {
     }
 
     @Override
-    public void handle(Message<K, V> message, Exception e) {
+    public void handle(Message<K, V> message, Throwable e) {
         Map<String, byte[]> metadata = message.metadata();
 
         metadata.put(ErrorDetails.ERROR_CODE, "B000".getBytes());
@@ -29,5 +30,19 @@ public class KafkaDeadLetterHandler<K, V> implements DeadLetterHandler<K, V> {
 
         KafkaMessage<K, V> errorMessage = KafkaMessage.of(message.key(), message.payload(), metadata, Message.Status.RESPONSE_FAILED);
         messageProducer.produce(dlqTopic, errorMessage);
+    }
+
+    @Override
+    public void handle(List<Message<K, V>> messages, Throwable e) {
+        for (Message<K, V> message : messages) {
+            Map<String, byte[]> metadata = message.metadata();
+
+            metadata.put(ErrorDetails.ERROR_CODE, "B000".getBytes());
+            metadata.put(ErrorDetails.ERROR_MESSAGE, e.getMessage().getBytes());
+            metadata.put(Message.STATUS, Message.Status.RESPONSE_FAILED.name().getBytes());
+
+            KafkaMessage<K, V> errorMessage = KafkaMessage.of(message.key(), message.payload(), metadata, Message.Status.RESPONSE_FAILED);
+            messageProducer.produce(dlqTopic, errorMessage);
+        }
     }
 }

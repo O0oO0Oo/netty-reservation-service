@@ -1,12 +1,9 @@
 package org.server.rsaga.saga.util;
 
 import io.hypersistence.tsid.TSID;
-import org.server.rsaga.saga.api.SagaMessage;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SagaMessageUtil {
 

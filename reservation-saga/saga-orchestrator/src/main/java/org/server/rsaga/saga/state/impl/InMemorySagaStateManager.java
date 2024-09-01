@@ -2,15 +2,12 @@ package org.server.rsaga.saga.state.impl;
 
 import io.hypersistence.tsid.TSID;
 import lombok.extern.slf4j.Slf4j;
-import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.saga.api.SagaMessage;
-import org.server.rsaga.saga.exception.RemoteServiceException;
 import org.server.rsaga.saga.promise.SagaPromise;
 import org.server.rsaga.saga.state.SagaState;
 import org.server.rsaga.saga.state.SagaStateCache;
 import org.server.rsaga.saga.state.SagaStateManager;
 import org.server.rsaga.saga.state.factory.SagaStateFactory;
-import org.server.rsaga.saga.step.impl.StepType;
 
 @Slf4j
 public class InMemorySagaStateManager<K, V> implements SagaStateManager<K, V> {
@@ -44,7 +41,7 @@ public class InMemorySagaStateManager<K, V> implements SagaStateManager<K, V> {
 
     private void removeSuccessCache(TSID id, SagaState<K, V> state) {
         if (state.isAllDone()) {
-            log.info("Correlation id : {} is succeed.", id);
+            log.debug("Correlation ID: {} succeeded.", id);
             cache.remove(id);
         }
     }

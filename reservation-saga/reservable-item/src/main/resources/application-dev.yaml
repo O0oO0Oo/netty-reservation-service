@@ -17,3 +17,17 @@ logging:
     org.springframework.transaction: DEBUG
     org.springframework.orm.jpa.JpaTransactionManager: DEBUG
 #    org.springframework.jdbc.datasource.DataSourceTransactionManager: DEBUG
+
+
+# mysql
+mysql:
+  master:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.35.179:3306/reservation-saga
+    username: master
+    password: master
+  slaves:
+    - driverClassName: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://192.168.35.179:3406/reservation-saga
+      username: slave
+      password: slave

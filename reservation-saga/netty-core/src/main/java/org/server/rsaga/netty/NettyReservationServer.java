@@ -7,6 +7,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.concurrent.DefaultExecutorServiceFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -24,8 +25,8 @@ public class NettyReservationServer {
     }
 
     public void start() {
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup();
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup(2, new DefaultExecutorServiceFactory("boss-thread-group"));
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(8, new DefaultExecutorServiceFactory("worker-thread-group"));
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap

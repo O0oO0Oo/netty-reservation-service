@@ -10,6 +10,9 @@ import org.server.rsaga.common.domain.Money;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "wallet", indexes = {
+        @Index(name = "idx_user_id", columnList = "user_id")
+})
 public class Wallet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

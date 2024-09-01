@@ -4,7 +4,7 @@ import com.server.reservation.common.exception.CustomException;
 import com.server.reservation.common.exception.ErrorCode;
 import com.server.reservation.user.dto.ModifyUserRequest;
 import com.server.reservation.user.dto.RegisterUserRequest;
-import com.server.reservation.user.entity.User;
+import com.server.reservation.user.domain.User;
 import com.server.reservation.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

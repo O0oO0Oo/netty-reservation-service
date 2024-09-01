@@ -8,13 +8,14 @@ import org.server.rsaga.messaging.adapter.producer.KafkaMessageProducer;
 import org.server.rsaga.messaging.message.Message;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
 public class AtLeastOnceKafkaMessageProducer<K, V> implements KafkaMessageProducer<K, V> {
     private final KafkaProducer<K, V> producer;
-
+    int cnt = 0 ;
     public AtLeastOnceKafkaMessageProducer(Properties properties) {
         this.producer = new KafkaProducer<>(properties);
     }
