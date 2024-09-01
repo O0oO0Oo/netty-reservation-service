@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SharedResponseEventExecutorGroup {
     private final EventExecutorGroup eventExecutorGroup = new DefaultEventExecutorGroup(
-            8,
+            2,
             new DefaultExecutorServiceFactory("async-response-conversion-thread-group")); // 스레드 풀 크기 설정
 
     public EventExecutorGroup getEventExecutorGroup() {

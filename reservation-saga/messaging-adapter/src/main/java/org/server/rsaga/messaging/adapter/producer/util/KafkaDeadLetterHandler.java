@@ -26,9 +26,9 @@ public class KafkaDeadLetterHandler<K, V> implements DeadLetterHandler<K, V> {
 
         metadata.put(ErrorDetails.ERROR_CODE, "B000".getBytes());
         metadata.put(ErrorDetails.ERROR_MESSAGE, e.getMessage().getBytes());
-        metadata.put(Message.STATUS, Message.Status.RESPONSE_FAILED.name().getBytes());
+        metadata.put(Message.STATUS, Message.Status.RESPONSE_FAILURE.name().getBytes());
 
-        KafkaMessage<K, V> errorMessage = KafkaMessage.of(message.key(), message.payload(), metadata, Message.Status.RESPONSE_FAILED);
+        KafkaMessage<K, V> errorMessage = KafkaMessage.of(message.key(), message.payload(), metadata, Message.Status.RESPONSE_FAILURE);
         messageProducer.produce(dlqTopic, errorMessage);
     }
 
@@ -39,9 +39,9 @@ public class KafkaDeadLetterHandler<K, V> implements DeadLetterHandler<K, V> {
 
             metadata.put(ErrorDetails.ERROR_CODE, "B000".getBytes());
             metadata.put(ErrorDetails.ERROR_MESSAGE, e.getMessage().getBytes());
-            metadata.put(Message.STATUS, Message.Status.RESPONSE_FAILED.name().getBytes());
+            metadata.put(Message.STATUS, Message.Status.RESPONSE_FAILURE.name().getBytes());
 
-            KafkaMessage<K, V> errorMessage = KafkaMessage.of(message.key(), message.payload(), metadata, Message.Status.RESPONSE_FAILED);
+            KafkaMessage<K, V> errorMessage = KafkaMessage.of(message.key(), message.payload(), metadata, Message.Status.RESPONSE_FAILURE);
             messageProducer.produce(dlqTopic, errorMessage);
         }
     }

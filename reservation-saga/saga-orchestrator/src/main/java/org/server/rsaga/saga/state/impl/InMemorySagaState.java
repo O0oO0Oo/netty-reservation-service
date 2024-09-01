@@ -16,7 +16,7 @@ public class InMemorySagaState<K, V> implements SagaState<K, V> {
 
     @Override
     public void updateState(SagaMessage<K, V> message) {
-        if (message.status().equals(Message.Status.RESPONSE_FAILED)) {
+        if (message.status().equals(Message.Status.RESPONSE_FAILURE)) {
             setFailure(
                    message, new CustomException(message.errorCode(), message.errorMessage())
             );

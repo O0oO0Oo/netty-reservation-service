@@ -26,7 +26,7 @@ public class SagaPromiseFactoryImpl implements SagaPromiseFactory{
 
     public SagaPromiseFactoryImpl() {
         this(new DefaultEventExecutorGroup(
-                        16,
+                        2,
                         new DefaultExecutorServiceFactory("saga-thread-group")
                 )
         );

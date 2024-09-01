@@ -1,14 +1,11 @@
 package org.server.rsaga.business.app;
 
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.server.rsaga.business.domain.Business;
 import org.server.rsaga.business.infra.repository.BusinessCustomRepository;
 import org.server.rsaga.business.infra.repository.BusinessJpaRepository;
 import org.server.rsaga.common.exception.ErrorCode;
-import org.server.rsaga.messaging.message.ErrorDetails;
 import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.messaging.schema.reservation.CreateReservationEventBuilder;
 import org.server.rsaga.reservation.CreateReservationEvent;
@@ -106,11 +103,8 @@ public class BusinessMessageEventService {
                 );
             } else {
                 // 없다면 FAILED 응답
-                ErrorCode businessNotFound = ErrorCode.BUSINESS_NOT_FOUND;
-                metadata.put(ErrorDetails.ERROR_CODE, businessNotFound.getCode().getBytes());
-                metadata.put(ErrorDetails.ERROR_MESSAGE, businessNotFound.getMessage().getBytes());
                 responses.add(
-                        SagaMessage.of(key, message.payload(), metadata, Message.Status.RESPONSE_FAILED)
+                        SagaMessage.createFailureResponse(message,ErrorCode.BUSINESS_NOT_FOUND)
                 );
             }
         }

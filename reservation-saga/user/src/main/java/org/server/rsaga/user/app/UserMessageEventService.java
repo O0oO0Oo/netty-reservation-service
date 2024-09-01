@@ -3,7 +3,6 @@ package org.server.rsaga.user.app;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.server.rsaga.common.exception.ErrorCode;
-import org.server.rsaga.messaging.message.ErrorDetails;
 import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.messaging.schema.reservation.CreateReservationEventBuilder;
 import org.server.rsaga.reservation.CreateReservationEvent;
@@ -97,11 +96,8 @@ public class UserMessageEventService {
                 );
             } else {
                 // 없다면 FAILED 응답
-                ErrorCode userNotFound = ErrorCode.USER_NOT_FOUND;
-                metadata.put(ErrorDetails.ERROR_CODE, userNotFound.getCode().getBytes());
-                metadata.put(ErrorDetails.ERROR_MESSAGE, userNotFound.getMessage().getBytes());
                 responses.add(
-                        SagaMessage.of(key, message.payload(), metadata, Message.Status.RESPONSE_FAILED)
+                        SagaMessage.createFailureResponse(message, ErrorCode.USER_NOT_FOUND)
                 );
             }
         }

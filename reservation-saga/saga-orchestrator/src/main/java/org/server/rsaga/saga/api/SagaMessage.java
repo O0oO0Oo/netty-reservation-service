@@ -1,6 +1,7 @@
 package org.server.rsaga.saga.api;
 
 import io.hypersistence.tsid.TSID;
+import org.server.rsaga.common.exception.ErrorCode;
 import org.server.rsaga.messaging.message.ErrorDetails;
 import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.saga.api.impl.DefaultSagaMessage;
@@ -31,5 +32,14 @@ public interface SagaMessage<K, V> extends Message<K, V>, ErrorDetails {
 
     static <K, V> SagaMessage<K, V> of(K key, V payload, Status status) {
         return new DefaultSagaMessage<>(key, payload, new HashMap<>(), status);
+    }
+
+    static <K, V> SagaMessage<K, V> createFailureResponse(Message<K, V> message, ErrorCode errorCode) {
+        Map<String, byte[]> metadata = message.metadata();
+
+        metadata.put(ErrorDetails.ERROR_CODE, errorCode.getCode().getBytes());
+        metadata.put(ErrorDetails.ERROR_MESSAGE, errorCode.getMessage().getBytes());
+
+        return new DefaultSagaMessage<>(message.key(), message.payload(), message.metadata(), Status.RESPONSE_FAILURE);
     }
 }
