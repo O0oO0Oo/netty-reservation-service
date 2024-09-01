@@ -2,6 +2,8 @@ package org.server.rsaga.reservation.infra.repository;
 
 import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.reservation.domain.Reservation;
+import org.server.rsaga.reservation.dto.repository.UserItemPairDto;
+import org.server.rsaga.reservation.dto.repository.UserItemReservationSumProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -6,7 +6,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.server.rsaga.messaging.adapter.message.KafkaMessage;
-import org.server.rsaga.messaging.adapter.processor.KafkaMessageProcessor;
+import org.server.rsaga.messaging.adapter.processor.KafkaSingleMessageProcessor;
 import org.server.rsaga.messaging.adapter.producer.KafkaMessageProducer;
 import org.server.rsaga.messaging.adapter.util.KafkaDynamicMessageConverter;
 import org.server.rsaga.messaging.message.Message;
@@ -33,7 +33,7 @@ import java.util.function.UnaryOperator;
  * @param <V> 값
  */
 @Slf4j
-public class MultiThreadedKafkaMessageProcessor<K, V> implements KafkaMessageProcessor<K, V> {
+public class MultiThreadedKafkaSingleMessageProcessor<K, V> implements KafkaSingleMessageProcessor<K, V> {
     private final List<KafkaConsumer<K, V>> kafkaConsumers;
     private final KafkaMessageProducer<K, V> kafkaMessageProducer;
     private UnaryOperator<Message<K, V>> messageHandler;
@@ -41,10 +41,10 @@ public class MultiThreadedKafkaMessageProcessor<K, V> implements KafkaMessagePro
     private final ExecutorService threadPool;
     private final String produceTopic;
 
-    public MultiThreadedKafkaMessageProcessor(List<KafkaConsumer<K, V>> kafkaConsumers,
-                                              KafkaMessageProducer<K, V> kafkaMessageProducer,
-                                              DeadLetterHandler<K, V> deadLetterHandler,
-                                              String produceTopic
+    public MultiThreadedKafkaSingleMessageProcessor(List<KafkaConsumer<K, V>> kafkaConsumers,
+                                                    KafkaMessageProducer<K, V> kafkaMessageProducer,
+                                                    DeadLetterHandler<K, V> deadLetterHandler,
+                                                    String produceTopic
                                                       ) {
         this.kafkaConsumers = kafkaConsumers;
         this.deadLetterHandler = deadLetterHandler;
@@ -75,7 +75,7 @@ public class MultiThreadedKafkaMessageProcessor<K, V> implements KafkaMessagePro
             }
         }
     }
-    
+
     // 대기 후 재시도를 위한 로직
     private void waitMoment() {
         try {

@@ -1,13 +1,18 @@
 package org.server.rsaga.reservation.infra.api;
 
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.util.concurrent.Promise;
 import lombok.RequiredArgsConstructor;
+import org.server.rsaga.common.annotation.AsyncResponse;
+import org.server.rsaga.common.dto.FullHttpAsyncResponse;
+import org.server.rsaga.common.dto.FullHttpAsyncResponseBuilder;
 import org.server.rsaga.common.dto.FullHttpResponseBuilder;
+import org.server.rsaga.reservation.app.ReservationApiService;
 import org.server.rsaga.reservation.app.ReservationSagaService;
+import org.server.rsaga.reservation.dto.request.CreateReservationRequest;
 import org.server.rsaga.reservation.dto.request.FindReservationRequest;
 import org.server.rsaga.reservation.dto.request.ModifyReservationRequest;
-import org.server.rsaga.reservation.dto.request.CreateReservationRequest;
-import org.server.rsaga.reservation.app.ReservationApiService;
+import org.server.rsaga.reservation.dto.response.ReservationDetailsResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,13 +40,14 @@ public class ReservationController {
                 .build();
     }
 
+    @AsyncResponse
     @PostMapping
-    public FullHttpResponse createReservation(@RequestBody CreateReservationRequest request) {
-        return FullHttpResponseBuilder.builder()
-                .body(
-                        reservationSagaService.createReservation(request)
-                )
-                .build();
+    public FullHttpAsyncResponse createReservation(@RequestBody CreateReservationRequest request) {
+        Promise<ReservationDetailsResponse> reservation = reservationSagaService.createReservation(request);
+        return FullHttpAsyncResponseBuilder
+                .builder(
+                        reservation
+                ).build();
     }
 
     // todo : 사가 패턴을 사용할지, ApplicationEvent 로 할지

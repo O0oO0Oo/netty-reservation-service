@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.server.rsaga.messaging.adapter.consumer.util.KafkaConsumerPropertiesUtil;
-import org.server.rsaga.messaging.adapter.processor.KafkaMessageProcessor;
-import org.server.rsaga.messaging.adapter.processor.impl.MultiThreadedKafkaMessageProcessor;
+import org.server.rsaga.messaging.adapter.processor.KafkaSingleMessageProcessor;
+import org.server.rsaga.messaging.adapter.processor.impl.MultiThreadedKafkaSingleMessageProcessor;
 import org.server.rsaga.messaging.adapter.producer.KafkaMessageProducer;
 import org.server.rsaga.messaging.adapter.producer.factory.KafkaMessageProducerFactory;
 import org.server.rsaga.messaging.adapter.producer.strategy.KafkaMessageProducerType;
@@ -24,7 +24,7 @@ import java.util.function.UnaryOperator;
 
 @Component
 @RequiredArgsConstructor
-public class MultiThreadedKafkaMessageProcessorCreationStrategy implements KafkaMessageProcessorCreationStrategy{
+public class MultiThreadedKafkaSingleMessageProcessorCreationStrategy implements KafkaSingleMessageProcessorCreationStrategy {
     private final KafkaConsumerPropertiesUtil kafkaConsumerPropertiesUtil;
     private final KafkaTopicUtils kafkaTopicUtils;
     private final KafkaMessageProducerFactory kafkaMessageProducerFactory;
@@ -40,8 +40,8 @@ public class MultiThreadedKafkaMessageProcessorCreationStrategy implements Kafka
      * @return {@link KafkaMessageProducer} 카프카 메시지 프로듀서 반환
      */
     @Override
-    public <K, V> KafkaMessageProcessor<K, V> createMessageProcessor(Properties config,
-                                                                     UnaryOperator<Message<K, V>> operator
+    public <K, V> KafkaSingleMessageProcessor<K, V> createMessageProcessor(Properties config,
+                                                                           UnaryOperator<Message<K, V>> operator
     ) {
         checkConfig(config);
 
@@ -58,7 +58,7 @@ public class MultiThreadedKafkaMessageProcessorCreationStrategy implements Kafka
         DeadLetterHandler<K, V> deadLetterHandler = createDeadLetterHandler(messageProducer, deadLetterTopic);
 
         // processor
-        MultiThreadedKafkaMessageProcessor<K, V> messageProcessor = new MultiThreadedKafkaMessageProcessor<>(
+        MultiThreadedKafkaSingleMessageProcessor<K, V> messageProcessor = new MultiThreadedKafkaSingleMessageProcessor<>(
                 kafkaConsumers,
                 messageProducer,
                 deadLetterHandler,
@@ -91,10 +91,10 @@ public class MultiThreadedKafkaMessageProcessorCreationStrategy implements Kafka
     }
 
     private <K, V> KafkaMessageProducer<K, V> createProducer(Properties config) {
-        // at least once producer
+        // at least once batch producer
         return kafkaMessageProducerFactory.createProducer(
                 config,
-                KafkaMessageProducerType.AT_LEAST_ONCE
+                KafkaMessageProducerType.AT_LEAST_ONCE_BATCH
         );
     }
 
@@ -120,7 +120,7 @@ public class MultiThreadedKafkaMessageProcessorCreationStrategy implements Kafka
     }
 
     @Override
-    public KafkaMessageProcessorType getType() {
-        return KafkaMessageProcessorType.MULTI_THREADED;
+    public KafkaSingleMessageProcessorType getType() {
+        return KafkaSingleMessageProcessorType.MULTI_THREADED;
     }
 }

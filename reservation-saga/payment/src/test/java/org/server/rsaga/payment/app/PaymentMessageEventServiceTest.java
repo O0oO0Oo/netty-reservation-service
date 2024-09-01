@@ -11,14 +11,20 @@ import org.server.rsaga.common.domain.Money;
 import org.server.rsaga.common.domain.constant.PaymentType;
 import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.messaging.schema.reservation.CreateReservationEventBuilder;
+import org.server.rsaga.payment.PaymentRequestOuterClass;
 import org.server.rsaga.payment.domain.Payment;
 import org.server.rsaga.payment.domain.Wallet;
 import org.server.rsaga.payment.domain.constant.PaymentStatus;
 import org.server.rsaga.payment.infra.repository.PaymentCustomRepository;
 import org.server.rsaga.payment.infra.repository.PaymentJpaRepository;
 import org.server.rsaga.payment.infra.repository.WalletCustomRepository;
+import org.server.rsaga.payment.infra.repository.WalletJpaRepository;
 import org.server.rsaga.reservation.CreateReservationEvent;
 import org.server.rsaga.saga.api.SagaMessage;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.locks.LockSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,9 +35,11 @@ class PaymentMessageEventServiceTest {
     @Mock
     WalletCustomRepository walletCustomRepository;
     @Mock
-    PaymentJpaRepository paymentJpaRepository;
+    WalletJpaRepository walletJpaRepository;
     @Mock
     PaymentCustomRepository paymentCustomRepository;
+    @Mock
+    PaymentJpaRepository paymentJpaRepository;
 
     @InjectMocks
     PaymentMessageEventService paymentMessageEventService;
@@ -96,7 +104,7 @@ class PaymentMessageEventServiceTest {
         assertEquals(PaymentStatus.CANCEL, payment.getPaymentStatus());
         verify(walletCustomRepository, only()).findByUserIdOrElseThrow(any(ForeignKey.class));
         verify(paymentCustomRepository, only()).findByReservationIdAndUserId(any(ForeignKey.class), any(ForeignKey.class));
-        verify(paymentJpaRepository, never()).save(any(Payment.class)); // No new payment should be saved in this case
+        verify(paymentJpaRepository, never()).save(any(Payment.class));
     }
 
     @Test

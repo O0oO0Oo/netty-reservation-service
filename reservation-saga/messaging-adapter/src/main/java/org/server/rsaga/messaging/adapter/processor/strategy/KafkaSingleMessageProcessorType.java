@@ -1,5 +1,5 @@
 package org.server.rsaga.messaging.adapter.processor.strategy;
 
-public enum KafkaMessageProcessorType {
+public enum KafkaSingleMessageProcessorType {
     MULTI_THREADED
 }

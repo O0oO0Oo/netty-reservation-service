@@ -3,9 +3,9 @@ package org.server.rsaga.business.infra.event.processor;
 import lombok.RequiredArgsConstructor;
 import org.server.rsaga.business.app.BusinessMessageEventService;
 import org.server.rsaga.common.messaging.MessagingTopics;
-import org.server.rsaga.messaging.adapter.processor.KafkaMessageProcessor;
+import org.server.rsaga.messaging.adapter.processor.KafkaBulkMessageProcessor;
 import org.server.rsaga.messaging.adapter.processor.factory.KafkaMessageProcessorFactory;
-import org.server.rsaga.messaging.adapter.processor.strategy.KafkaMessageProcessorType;
+import org.server.rsaga.messaging.adapter.processor.strategy.KafkaBulkMessageProcessorType;
 import org.server.rsaga.reservation.CreateReservationEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,7 @@ public class BusinessCreateReservationEventProcessor {
     private final BusinessMessageEventService businessMessageEventService;
 
     @Bean
-    public KafkaMessageProcessor<String, CreateReservationEvent> createReservationEventVerifyBusinessKafkaMessageProcessor() {
+    public KafkaBulkMessageProcessor<String, CreateReservationEvent> createReservationEventKafkaBulkMessageProcessor(){
         Properties config = new Properties();
         config.put("producer.topic", MessagingTopics.CREATE_RESERVATION_RESPONSE.name());
         config.put("dead.letter.topic", MessagingTopics.CREATE_RESERVATION_RESPONSE.name());
@@ -30,8 +30,8 @@ public class BusinessCreateReservationEventProcessor {
 
         return processorFactory.create(
                 config,
-                businessMessageEventService::consumeVerifyBusinessEvent,
-                KafkaMessageProcessorType.MULTI_THREADED
+                businessMessageEventService::consumeBulkVerifyBusinessEvents,
+                KafkaBulkMessageProcessorType.MULTI_THREADED
         );
     }
 }

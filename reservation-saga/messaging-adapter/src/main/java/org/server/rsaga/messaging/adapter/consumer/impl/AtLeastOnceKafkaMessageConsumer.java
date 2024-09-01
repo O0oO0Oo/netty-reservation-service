@@ -1,17 +1,23 @@
 package org.server.rsaga.messaging.adapter.consumer.impl;
 
 import com.google.protobuf.DynamicMessage;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.checkerframework.checker.units.qual.N;
 import org.server.rsaga.messaging.adapter.consumer.KafkaMessageConsumer;
 import org.server.rsaga.messaging.adapter.message.KafkaMessage;
 import org.server.rsaga.messaging.adapter.util.KafkaDynamicMessageConverter;
 import org.server.rsaga.messaging.message.Message;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -19,6 +25,7 @@ public class AtLeastOnceKafkaMessageConsumer<K, V> implements KafkaMessageConsum
     private final KafkaConsumer<K, V> kafkaConsumer;
     private Consumer<Message<K, V>> messageHandler;
     private volatile boolean running = true;
+    private final EventLoopGroup eventLoopGroup = new NioEventLoopGroup(9);
 
     public AtLeastOnceKafkaMessageConsumer(KafkaConsumer<K, V> kafkaConsumer,
                                            String topic) {
@@ -33,7 +40,7 @@ public class AtLeastOnceKafkaMessageConsumer<K, V> implements KafkaMessageConsum
     }
 
     private void start() {
-        new Thread(this::pollMessage).start();
+        eventLoopGroup.next().submit(this::pollMessage);
     }
 
     private void pollMessage() {

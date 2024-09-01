@@ -2,9 +2,11 @@ package org.server.rsaga.reservation.infra.event.processor;
 
 import lombok.RequiredArgsConstructor;
 import org.server.rsaga.common.messaging.MessagingTopics;
-import org.server.rsaga.messaging.adapter.processor.KafkaMessageProcessor;
+import org.server.rsaga.messaging.adapter.processor.KafkaBulkMessageProcessor;
+import org.server.rsaga.messaging.adapter.processor.KafkaSingleMessageProcessor;
 import org.server.rsaga.messaging.adapter.processor.factory.KafkaMessageProcessorFactory;
-import org.server.rsaga.messaging.adapter.processor.strategy.KafkaMessageProcessorType;
+import org.server.rsaga.messaging.adapter.processor.strategy.KafkaBulkMessageProcessorType;
+import org.server.rsaga.messaging.adapter.processor.strategy.KafkaSingleMessageProcessorType;
 import org.server.rsaga.reservation.CreateReservationEvent;
 import org.server.rsaga.reservation.app.ReservationMessageEventService;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +21,7 @@ public class ReservationCreateReservationEventProcessor {
     private final ReservationMessageEventService reservationMessageEventService;
 
     @Bean
-    public KafkaMessageProcessor<String, CreateReservationEvent> createReservationCheckReservationLimitEventKafkaMessageProcessor() {
+    public KafkaBulkMessageProcessor<String, CreateReservationEvent> createReservationCheckReservationLimitEventKafkaBulkMessageProcessor() {
         Properties config = new Properties();
         config.put("producer.topic", MessagingTopics.CREATE_RESERVATION_RESPONSE.name());
         config.put("dead.letter.topic", MessagingTopics.CREATE_RESERVATION_RESPONSE.name());
@@ -30,25 +32,25 @@ public class ReservationCreateReservationEventProcessor {
 
         return processorFactory.create(
                 config,
-                reservationMessageEventService::consumeCheckReservationLimitEvent,
-                KafkaMessageProcessorType.MULTI_THREADED
+                reservationMessageEventService::consumeBulkCheckReservationLimitEvent,
+                KafkaBulkMessageProcessorType.MULTI_THREADED
         );
     }
 
     @Bean
-    public KafkaMessageProcessor<String, CreateReservationEvent> createReservationEventFinalKafkaMessageProcessor() {
+    public KafkaBulkMessageProcessor<String, CreateReservationEvent> createReservationEventFinalKafkaBulkMessageProcessor() {
         Properties config = new Properties();
         config.put("producer.topic", MessagingTopics.CREATE_RESERVATION_RESPONSE.name());
         config.put("dead.letter.topic", MessagingTopics.CREATE_RESERVATION_RESPONSE.name());
 
-        config.put("group.id", "create-reservation.reservation.check-limit-consumer");
+        config.put("group.id", "create-reservation.reservation.final-consumer");
         config.put("consumer.topic", MessagingTopics.CREATE_RESERVATION_FINAL_STEP.name());
         config.put("specific.protobuf.value.type", CreateReservationEvent.class.getName());
 
         return processorFactory.create(
                 config,
-                reservationMessageEventService::consumeCreateReservationFinalEvent,
-                KafkaMessageProcessorType.MULTI_THREADED
+                reservationMessageEventService::consumeBulkCreateReservationFinalEvent,
+                KafkaBulkMessageProcessorType.MULTI_THREADED
         );
     }
 }

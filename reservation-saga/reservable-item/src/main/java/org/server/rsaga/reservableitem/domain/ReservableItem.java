@@ -9,7 +9,8 @@ import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.domain.Money;
 import org.server.rsaga.common.event.BusinessValidationEvent;
 import org.server.rsaga.common.event.EventPublisher;
-import org.springframework.data.domain.DomainEvents;
+import org.server.rsaga.common.exception.CustomException;
+import org.server.rsaga.common.exception.ErrorCode;
 
 import java.util.Date;
 import java.util.List;
@@ -128,7 +129,7 @@ public class ReservableItem {
         ReservableTime reservableTime = reservableTimes.stream()
                 .filter(time -> time.getId().equals(timeId))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("ReservableTime not found with id: " + timeId));
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVABLE_TIME_NOT_FOUND));
 
         // Stock 증가
         reservableTime.increaseStock(requestQuantity);
@@ -138,7 +139,7 @@ public class ReservableItem {
         ReservableTime reservableTime = reservableTimes.stream()
                 .filter(time -> time.getId().equals(timeId))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("ReservableTime not found with id: " + timeId));
+                .orElseThrow(() -> new CustomException(ErrorCode.RESERVABLE_TIME_NOT_FOUND));
 
         // Stock 감소
         reservableTime.decreaseStock(requestQuantity);
@@ -242,5 +243,9 @@ public class ReservableItem {
         if (requestQuantity > this.maxQuantityPerUser) {
             throw new IllegalArgumentException("Requested quantity exceeds the maximum allowed per user.");
         }
+    }
+
+    public boolean checkRequestQuantityLowerThenLimit(long requestQuantity) {
+        return this.maxQuantityPerUser >= requestQuantity;
     }
 }

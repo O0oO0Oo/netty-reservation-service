@@ -1,16 +1,10 @@
 package org.server.rsaga.reservation.app.saga;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.server.rsaga.business.VerifyBusinessRequestOuterClass;
 import org.server.rsaga.common.messaging.MessagingTopics;
 import org.server.rsaga.messaging.adapter.consumer.KafkaMessageConsumer;
-import org.server.rsaga.messaging.adapter.consumer.factory.KafkaMessageConsumerFactory;
-import org.server.rsaga.messaging.adapter.consumer.strategy.KafkaMessageConsumerType;
 import org.server.rsaga.messaging.adapter.producer.KafkaMessageProducer;
-import org.server.rsaga.messaging.adapter.producer.factory.KafkaMessageProducerFactory;
-import org.server.rsaga.messaging.adapter.producer.strategy.KafkaMessageProducerType;
-import org.server.rsaga.messaging.adapter.util.KafkaTopicUtils;
 import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.messaging.schema.reservation.CreateReservationEventBuilder;
 import org.server.rsaga.reservableitem.VerifyReservableItemRequestOuterClass;
@@ -31,40 +25,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Properties;
-
 @Configuration
 @RequiredArgsConstructor
 public class CreateReservationSagaConfig {
-    private final KafkaTopicUtils topicUtils;
-    private final KafkaMessageProducerFactory kafkaMessageProducerFactory;
-
-    @PostConstruct
-    public void createTopic() {
-        topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_VERIFY_USER.name(), 3, (short) 3);
-        topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_VERIFY_BUSINESS.name(), 3, (short) 3);
-        topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_VERIFY_RESERVABLEITEM.name(), 3, (short) 3);
-        topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_CHECK_RESERVATION_LIMIT.name(), 3, (short) 3);
-        topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_PAYMENT.name(), 3, (short) 3);
-        topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_UPDATE_RESERVABLEITEM_QUANTITY.name(), 3, (short) 3);
-        topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_FINAL_STEP.name(), 3, (short) 3);
-
-        topicUtils.createTopic(MessagingTopics.CREATE_RESERVATION_RESPONSE.name(), 3, (short) 3);
-    }
 
     /**
-     * @return Exactly-Once {@link KafkaMessageProducer}
-     */
-    @Bean("ExactlyOnceKafkaMessageProducer")
-    public KafkaMessageProducer<String, CreateReservationEvent> messageProducer() {
-        Properties config = new Properties();
-        config.put("transactional.id", "create-reservation-transaction");
-
-        return kafkaMessageProducerFactory.createProducer(config, KafkaMessageProducerType.EXACTLY_ONCE);
-    }
-
-    /**
-     * todo 토픽별로 프로듀서를 사용할지
      * <pre>
      * key : 이벤트의 키 값
      *
@@ -74,8 +39,20 @@ public class CreateReservationSagaConfig {
      */
     @Bean("createReservationEventSagaDefinition")
     public SagaDefinition createReservationEventSagaDefinition(
-            @Qualifier("ExactlyOnceKafkaMessageProducer")
-            KafkaMessageProducer<String, CreateReservationEvent> messageProducer
+            @Qualifier("userVerifyProducer")
+            KafkaMessageProducer<String, CreateReservationEvent> userVerifyProducer,
+            @Qualifier("businessVerifyProducer")
+            KafkaMessageProducer<String, CreateReservationEvent> businessVerifyProducer,
+            @Qualifier("reservableItemVerifyProducer")
+            KafkaMessageProducer<String, CreateReservationEvent> reservableItemVerifyProducer,
+            @Qualifier("checkReservationLimitProducer")
+            KafkaMessageProducer<String, CreateReservationEvent> checkReservationLimitProducer,
+            @Qualifier("paymentProducer")
+            KafkaMessageProducer<String, CreateReservationEvent> paymentProducer,
+            @Qualifier("updateItemQuantityProducer")
+            KafkaMessageProducer<String, CreateReservationEvent> updateItemQuantityProducer,
+            @Qualifier("createReservationFinalProducer")
+            KafkaMessageProducer<String, CreateReservationEvent> createReservationFinalProducer
     ) {
         SagaDefinitionFactoryImpl<String, CreateReservationEvent> sagaDefinitionFactory = new SagaDefinitionFactoryImpl<>();
 
@@ -106,7 +83,7 @@ public class CreateReservationSagaConfig {
                             String key = String.valueOf(userId);
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
-                        }, messageProducer, StepType.EXECUTE
+                        }, userVerifyProducer, StepType.EXECUTE
                 )
 
 
@@ -134,7 +111,7 @@ public class CreateReservationSagaConfig {
                             String key = String.valueOf(businessId);
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
-                        }, messageProducer, StepType.EXECUTE
+                        }, businessVerifyProducer, StepType.EXECUTE
                 )
 
 
@@ -168,7 +145,7 @@ public class CreateReservationSagaConfig {
                             String key = String.valueOf(reservableItemId);
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
-                        }, messageProducer, StepType.EXECUTE
+                        }, reservableItemVerifyProducer, StepType.EXECUTE
                 )
 
 
@@ -233,7 +210,7 @@ public class CreateReservationSagaConfig {
                                     .build();
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
-                        }, messageProducer, StepType.EXECUTE
+                        }, checkReservationLimitProducer, StepType.EXECUTE
                         , "verifyUser", "verifyBusiness", "verifyItem", SagaDefinitionFactoryImpl.getInitialStepName()
                 )
                 /**
@@ -297,7 +274,7 @@ public class CreateReservationSagaConfig {
                                     .build();
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
-                        }, messageProducer, StepType.COMPENSATE
+                        }, checkReservationLimitProducer, StepType.COMPENSATE
                         , "verifyUser", "verifyBusiness", "verifyItem", SagaDefinitionFactoryImpl.getInitialStepName()
                 )
 
@@ -358,7 +335,7 @@ public class CreateReservationSagaConfig {
                                     .build();
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
-                        }, messageProducer, StepType.EXECUTE
+                        }, paymentProducer, StepType.EXECUTE
                         , "verifyUser", "verifyItem", "checkReservationLimit", SagaDefinitionFactoryImpl.getInitialStepName()
                 )
                 /**
@@ -417,7 +394,7 @@ public class CreateReservationSagaConfig {
                                     .build();
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
-                        }, messageProducer, StepType.COMPENSATE
+                        }, paymentProducer, StepType.COMPENSATE
                         , "verifyUser", "verifyItem", "checkReservationLimit", SagaDefinitionFactoryImpl.getInitialStepName()
                 )
 
@@ -463,7 +440,7 @@ public class CreateReservationSagaConfig {
                                     .build();
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
-                        }, messageProducer, StepType.EXECUTE
+                        }, updateItemQuantityProducer, StepType.EXECUTE
                         , "verifyItem", "payment", SagaDefinitionFactoryImpl.getInitialStepName()
                 )
                 /**
@@ -508,7 +485,7 @@ public class CreateReservationSagaConfig {
                                     .build();
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
-                        }, messageProducer, StepType.COMPENSATE
+                        }, updateItemQuantityProducer, StepType.COMPENSATE
                         , "verifyItem", "payment", SagaDefinitionFactoryImpl.getInitialStepName()
                 )
 
@@ -517,10 +494,10 @@ public class CreateReservationSagaConfig {
                  * ---------- 마지막 단계 ----------
                  * key
                  * reservationId
-                 * 
+                 *
                  * payload
                  * {@link org.server.rsaga.reservation.CreateReservationFinalRequestOuterClass.CreateReservationFinalRequest}
-                 * 
+                 *
                  * pending 상태의 reservation 을 reserved 로 변경
                  */
                 .addStep("createReservationFinal", MessagingTopics.CREATE_RESERVATION_FINAL_STEP.name(),
@@ -546,7 +523,7 @@ public class CreateReservationSagaConfig {
                                     .build();
 
                             return SagaMessage.of(key, payload, Message.Status.REQUEST);
-                        }, messageProducer, StepType.EXECUTE
+                        }, createReservationFinalProducer, StepType.EXECUTE
                         , "checkReservationLimit", "updateItemQuantity"
                 )
                 .getSagaDefinition();
@@ -556,19 +533,12 @@ public class CreateReservationSagaConfig {
     public SagaCoordinator<String, CreateReservationEvent> createReservationEventSagaCoordinator(
             @Qualifier("createReservationEventSagaDefinition")
             SagaDefinition sagaDefinition,
-            KafkaMessageConsumerFactory messageConsumerFactory
+            @Qualifier("createReservationCoordinatorConsumer")
+            KafkaMessageConsumer<String, CreateReservationEvent> messageConsumer
     ) {
         SagaStateComponentFactory<String, CreateReservationEvent> sagaStateComponentFactory = new InMemorySagaStateComponentFactory<>();
         SagaStateManager<String, CreateReservationEvent> sagaStateManger = sagaStateComponentFactory.createSagaStateManger();
 
-        Properties config = new Properties();
-        config.put("group.id", "create-reservation-group");
-        config.put("consumer.topic", MessagingTopics.CREATE_RESERVATION_RESPONSE.name());
-        config.put("specific.protobuf.value.type", CreateReservationEvent.class.getName());
-
-        KafkaMessageConsumer<String, CreateReservationEvent> messageConsumer = messageConsumerFactory.createConsumer(
-                config, KafkaMessageConsumerType.AT_LEAST_ONCE
-        );
         return new DefaultSagaCoordinator<>(sagaDefinition, sagaStateManger, messageConsumer);
     }
 }

@@ -20,11 +20,6 @@ public class AtLeastOnceKafkaMessageProducerCreationStrategy implements KafkaMes
     }
 
     @Override
-    public void checkConfig(Properties config) {
-
-    }
-
-    @Override
     public KafkaMessageProducerType getType() {
         return KafkaMessageProducerType.AT_LEAST_ONCE;
     }
