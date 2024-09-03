@@ -25,8 +25,8 @@ public class NettyReservationServer {
     }
 
     public void start() {
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup(2, new DefaultExecutorServiceFactory("boss-thread-group"));
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup(8, new DefaultExecutorServiceFactory("worker-thread-group"));
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup(3, new DefaultExecutorServiceFactory("boss-thread-group"));
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup(10, new DefaultExecutorServiceFactory("worker-thread-group"));
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap
