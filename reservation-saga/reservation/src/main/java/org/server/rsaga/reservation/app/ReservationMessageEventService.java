@@ -423,9 +423,9 @@ public class ReservationMessageEventService {
         }
 
         Reservation reservation = reservationMap.get(reservationId);
-        reservation.updateStatus(ReservationStatus.FAILED);
+        reservation.updateStatus(ReservationStatus.RESERVED);
 
-        // 실패로 상태 변경 성공 응답.
+        // PENDING 상태에서 RESERVED 상태로 변경 성공, 성공 응답.
         return createReservationFinalSuccessResponse(message, reservation);
     }
 
