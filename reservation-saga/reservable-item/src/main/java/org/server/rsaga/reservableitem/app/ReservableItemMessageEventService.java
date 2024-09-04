@@ -314,6 +314,8 @@ public class ReservableItemMessageEventService {
             return createSuccessResponse(message, reservableItem.getId());
         } catch (CustomException e) {
             return SagaMessage.createFailureResponse(message, e.getErrorCode());
+        } catch (Exception e) {
+            return SagaMessage.createFailureResponse(message, e.getMessage());
         }
     }
 
@@ -336,6 +338,8 @@ public class ReservableItemMessageEventService {
             return createSuccessResponse(message, reservableItem.getId());
         } catch (CustomException e) {
             return SagaMessage.createFailureResponse(message, e.getErrorCode());
+        } catch (Exception e) {
+            return SagaMessage.createFailureResponse(message, e.getMessage());
         }
     }
 

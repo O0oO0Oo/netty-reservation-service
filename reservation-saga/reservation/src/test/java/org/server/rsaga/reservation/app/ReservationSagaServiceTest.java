@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.server.rsaga.common.domain.constant.PaymentType;
+import org.server.rsaga.common.netty.SharedResponseEventExecutorGroup;
 import org.server.rsaga.messaging.schema.reservation.CreateReservationEventBuilder;
 import org.server.rsaga.reservation.CreateReservationEvent;
 import org.server.rsaga.reservation.dto.request.CreateReservationRequest;
@@ -25,6 +26,8 @@ import static org.mockito.Mockito.*;
 class ReservationSagaServiceTest {
     @Mock
     private SagaCoordinator<String, CreateReservationEvent> sagaCoordinator;
+    @Mock
+    private SharedResponseEventExecutorGroup sharedResponseEventExecutorGroup;
 
     @InjectMocks
     private ReservationSagaService reservationSagaService;
@@ -33,7 +36,6 @@ class ReservationSagaServiceTest {
     @DisplayName("createReservation() - valid request - success")
     void should_succeed_when_createReservation() {
         // given
-        TSID correlationId = TSID.fast();
         long userId = 1L;
         long businessId = 1L;
         long reservableItemId = 1L;

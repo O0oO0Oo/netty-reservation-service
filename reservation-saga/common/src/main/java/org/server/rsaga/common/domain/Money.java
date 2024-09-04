@@ -3,6 +3,8 @@ package org.server.rsaga.common.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Value;
+import org.server.rsaga.common.exception.CustomException;
+import org.server.rsaga.common.exception.ErrorCode;
 
 @Value
 @Embeddable
@@ -24,7 +26,7 @@ public class Money {
     public Money subtract(final Money other) {
         long calculatedAmount = this.amount - other.amount;
         if (calculatedAmount < 0) {
-            throw new IllegalArgumentException("The calculated money amount should not be a negative value.");
+            throw new CustomException(ErrorCode.INSUFFICIENT_BALANCE);
         }
         return new Money(calculatedAmount);
     }

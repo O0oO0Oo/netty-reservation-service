@@ -29,6 +29,7 @@ public enum  ErrorCode {
 
     // Reservable Time
     RESERVABLE_TIME_NOT_FOUND(HttpResponseStatus.NOT_FOUND, "T001", "예약 가능 시간을 찾을 수 없습니다."),
+    INSUFFICIENT_STOCK(HttpResponseStatus.BAD_REQUEST, "T002","재고가 부족합니다."),
 
     // Reservation
     RESERVATION_NOT_FOUND(HttpResponseStatus.NOT_FOUND, "R001", "기록을 찾을 수 없습니다."),

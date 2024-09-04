@@ -255,6 +255,8 @@ public class PaymentMessageEventService {
         } catch (CustomException e) {
             // 잔고 부족, 실패 메시지
             return SagaMessage.createFailureResponse(message, e.getErrorCode());
+        } catch (Exception e) {
+            return SagaMessage.createFailureResponse(message, e.getMessage());
         }
     }
 
