@@ -42,4 +42,13 @@ public interface SagaMessage<K, V> extends Message<K, V>, ErrorDetails {
 
         return new DefaultSagaMessage<>(message.key(), message.payload(), message.metadata(), Status.RESPONSE_FAILURE);
     }
+
+    static <K, V> SagaMessage<K, V> createFailureResponse(Message<K, V> message, String errorMessage) {
+        Map<String, byte[]> metadata = message.metadata();
+
+        metadata.put(ErrorDetails.ERROR_CODE, "M000".getBytes());
+        metadata.put(ErrorDetails.ERROR_MESSAGE, errorMessage.getBytes());
+
+        return new DefaultSagaMessage<>(message.key(), message.payload(), message.metadata(), Status.RESPONSE_FAILURE);
+    }
 }

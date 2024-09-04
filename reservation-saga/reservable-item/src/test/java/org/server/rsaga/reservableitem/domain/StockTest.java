@@ -3,6 +3,8 @@ package org.server.rsaga.reservableitem.domain;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.server.rsaga.common.exception.CustomException;
+import org.server.rsaga.common.exception.ErrorCode;
 import org.server.rsaga.reservableitem.domain.constant.Unit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,11 +81,11 @@ class StockTest {
             Long decrement = 2L;
 
             // when
-            IllegalArgumentException aThrows = assertThrows(IllegalArgumentException.class, () -> stock.decreaseQuantity(decrement));
+            CustomException aThrows = assertThrows(CustomException.class, () -> stock.decreaseQuantity(decrement));
 
             // then
             Unit unit = stock.getUnit();
-            assertEquals(aThrows.getMessage(), "Insufficient stock available to decrease by " + decrement + " " + unit.name());
+            assertEquals(aThrows.getMessage(), ErrorCode.INSUFFICIENT_STOCK.getMessage());
             assertEquals(1L, stock.getQuantity(), "The quantity should be 1L.");
         }
     }

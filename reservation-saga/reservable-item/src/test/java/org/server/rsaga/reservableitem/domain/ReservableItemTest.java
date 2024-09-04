@@ -197,10 +197,10 @@ class ReservableItemTest {
         when(reservableTimes.get(2).getId()).thenReturn(2L);
 
         // when
-        IllegalArgumentException aThrows = assertThrows(IllegalArgumentException.class, () -> testReservableItem.increaseReservableTimeStock(timeId, 10L));
+        CustomException aThrows = assertThrows(CustomException.class, () -> testReservableItem.increaseReservableTimeStock(timeId, 10L));
 
         // then
-        assertEquals("ReservableTime not found with id: " + timeId, aThrows.getMessage());
+        assertEquals(ErrorCode.RESERVABLE_TIME_NOT_FOUND.getMessage(), aThrows.getMessage());
     }
 
     @Test
@@ -231,11 +231,10 @@ class ReservableItemTest {
         when(reservableTimes.get(2).getId()).thenReturn(2L);
 
         // when
-        IllegalArgumentException aThrows = assertThrows(IllegalArgumentException.class, () -> testReservableItem.decreaseReservableTimeStock(timeId, 10L));
+        CustomException aThrows = assertThrows(CustomException.class, () -> testReservableItem.decreaseReservableTimeStock(timeId, 10L));
 
         // then
-        assertEquals("ReservableTime not found with id: " + timeId, aThrows.getMessage());
-    }
+        assertEquals(ErrorCode.RESERVABLE_TIME_NOT_FOUND.getMessage(), aThrows.getMessage());    }
 
     @Test
     @DisplayName("decreaseReservableTimeStock() - exist ReservableTimeId - changed")

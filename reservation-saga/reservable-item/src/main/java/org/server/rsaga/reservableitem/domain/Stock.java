@@ -4,6 +4,8 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Value;
+import org.server.rsaga.common.exception.CustomException;
+import org.server.rsaga.common.exception.ErrorCode;
 import org.server.rsaga.reservableitem.domain.constant.Unit;
 
 @Value
@@ -44,7 +46,7 @@ public class Stock {
 
         long newQuantity = this.quantity - decrement;
         if (newQuantity < 0) {
-            throw new IllegalArgumentException("Insufficient stock available to decrease by " + decrement + " " + this.unit.name());
+            throw new CustomException(ErrorCode.INSUFFICIENT_STOCK);
         }
         return new Stock(newQuantity, this.unit);
     }

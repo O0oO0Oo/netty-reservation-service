@@ -60,6 +60,7 @@ class ReservableItemMessageEventServiceTest {
         when(reservableItem.getId()).thenReturn(reservableItemId);
         when(reservableItem.getPrice()).thenReturn(1000L);
         when(reservableItem.getMaxQuantityPerUser()).thenReturn(5L);
+        when(reservableItem.isTimeAvailable(reservableTimeId)).thenReturn(true);
 
         // when
         Message<String, CreateReservationEvent> response = reservableItemMessageEventService.consumeVerifyReservableItemEvent(message);
@@ -96,8 +97,6 @@ class ReservableItemMessageEventServiceTest {
                 new ForeignKey(businessId),
                 reservableTimeId
         )).thenReturn(reservableItem);
-
-        doThrow(new CustomException(ErrorCode.RESERVABLE_ITEM_IS_NOT_AVAILABLE)).when(reservableItem).validateRequestQuantity(anyLong());
 
         // when
         CustomException exception = assertThrows(CustomException.class, () ->
