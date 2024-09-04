@@ -1,7 +1,6 @@
 package org.server.rsaga.reservableitem.infra.repository.impl;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import org.server.rsaga.common.domain.ForeignKey;
@@ -15,7 +14,6 @@ import org.server.rsaga.reservableitem.infra.repository.ReservableItemJpaReposit
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -72,10 +70,10 @@ public class ReservableItemCustomRepositoryImpl implements ReservableItemCustomR
         List<Predicate> predicates = new ArrayList<>();
         for (ReservableItemSearchDTO dto : ids) {
             Predicate idPredicate = cb.equal(root.get("id"), dto.reservableItemId());
-            Predicate businessPredicate = cb.equal(root.get("businessId"), dto.businessId());
             Predicate timePredicate = cb.equal(root.join("reservableTimes").get("id"), dto.reservableTimeId());
+            Predicate businessPredicate = cb.equal(root.get("businessId"), dto.businessId());
 
-            Predicate combinedPredicate = cb.and(idPredicate, businessPredicate, timePredicate);
+            Predicate combinedPredicate = cb.and(idPredicate, timePredicate, businessPredicate);
             predicates.add(combinedPredicate);
         }
 

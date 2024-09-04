@@ -56,7 +56,7 @@ public class MultiThreadedKafkaBulkMessageProcessor<K, V> implements KafkaBulkMe
     private void processMessages(KafkaConsumer<K, V> kafkaConsumer) {
         while (true) {
             try {
-                ConsumerRecords<K, V> messageRecords = kafkaConsumer.poll(Duration.ofMillis(300));
+                ConsumerRecords<K, V> messageRecords = kafkaConsumer.poll(Duration.ofMillis(2g00));
                 if(!messageRecords.isEmpty()) {
                     processRecord(messageRecords);
                 }

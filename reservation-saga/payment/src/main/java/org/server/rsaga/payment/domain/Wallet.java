@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.server.rsaga.common.domain.BaseTime;
 import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.domain.Money;
 
@@ -26,6 +27,9 @@ public class Wallet {
     @Embedded
     @AttributeOverride(name = "amount", column = @Column(name = "balance", nullable = false))
     private Money balance;
+
+    @Embedded
+    private BaseTime baseTime;
 
     public Wallet(
             final ForeignKey userId,

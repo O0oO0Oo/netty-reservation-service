@@ -22,7 +22,7 @@ public class ReservationCreatSagaProducer {
     public KafkaMessageProducer<String, CreateReservationEvent> userVerifyProducer() {
         Properties config = new Properties();
         config.put(BATCH_SIZE_CONFIG, "1638400");
-        config.put(LINGER_MS_CONFIG, "100");
+        config.put(LINGER_MS_CONFIG, "200");
         return kafkaMessageProducerFactory.createProducer(config, KafkaMessageProducerType.AT_LEAST_ONCE_BATCH);
     }
 
@@ -30,7 +30,7 @@ public class ReservationCreatSagaProducer {
     public KafkaMessageProducer<String, CreateReservationEvent> businessVerifyProducer() {
         Properties config = new Properties();
         config.put(BATCH_SIZE_CONFIG, "1638400");
-        config.put(LINGER_MS_CONFIG, "100");
+        config.put(LINGER_MS_CONFIG, "200");
         return kafkaMessageProducerFactory.createProducer(config, KafkaMessageProducerType.AT_LEAST_ONCE_BATCH);
     }
 
@@ -38,35 +38,35 @@ public class ReservationCreatSagaProducer {
     public KafkaMessageProducer<String, CreateReservationEvent> reservableItemVerifyProducer() {
         Properties config = new Properties();
         config.put(BATCH_SIZE_CONFIG, "1638400");
-        config.put(LINGER_MS_CONFIG, "100");
+        config.put(LINGER_MS_CONFIG, "200");
         return kafkaMessageProducerFactory.createProducer(config, KafkaMessageProducerType.AT_LEAST_ONCE_BATCH);
     }
     @Bean("checkReservationLimitProducer")
     public KafkaMessageProducer<String, CreateReservationEvent> checkReservationLimitProducer() {
         Properties config = new Properties();
         config.put(BATCH_SIZE_CONFIG, "1638400");
-        config.put(LINGER_MS_CONFIG, "100");
+        config.put(LINGER_MS_CONFIG, "200");
         return kafkaMessageProducerFactory.createProducer(config, KafkaMessageProducerType.AT_LEAST_ONCE_BATCH);
     }
     @Bean("paymentProducer")
     public KafkaMessageProducer<String, CreateReservationEvent> paymentProducer() {
         Properties config = new Properties();
         config.put(BATCH_SIZE_CONFIG, "1638400");
-        config.put(LINGER_MS_CONFIG, "100");
+        config.put(LINGER_MS_CONFIG, "200");
         return kafkaMessageProducerFactory.createProducer(config, KafkaMessageProducerType.AT_LEAST_ONCE_BATCH);
     }
     @Bean("updateItemQuantityProducer")
     public KafkaMessageProducer<String, CreateReservationEvent> updateItemQuantityProducer() {
         Properties config = new Properties();
         config.put(BATCH_SIZE_CONFIG, "1638400");
-        config.put(LINGER_MS_CONFIG, "100");
+        config.put(LINGER_MS_CONFIG, "200");
         return kafkaMessageProducerFactory.createProducer(config, KafkaMessageProducerType.AT_LEAST_ONCE_BATCH);
     }
     @Bean("createReservationFinalProducer")
     public KafkaMessageProducer<String, CreateReservationEvent> createReservationFinalProducer() {
         Properties config = new Properties();
         config.put(BATCH_SIZE_CONFIG, "1638400");
-        config.put(LINGER_MS_CONFIG, "100");
+        config.put(LINGER_MS_CONFIG, "200");
         return kafkaMessageProducerFactory.createProducer(config, KafkaMessageProducerType.AT_LEAST_ONCE_BATCH);
     }
 }
