@@ -3,15 +3,14 @@ package org.server.rsaga.payment.app;
 import lombok.RequiredArgsConstructor;
 import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.domain.Money;
+import org.server.rsaga.common.domain.constant.PaymentType;
 import org.server.rsaga.common.exception.CustomException;
 import org.server.rsaga.common.exception.ErrorCode;
-import org.server.rsaga.messaging.message.ErrorDetails;
 import org.server.rsaga.messaging.message.Message;
 import org.server.rsaga.messaging.schema.reservation.CreateReservationEventBuilder;
 import org.server.rsaga.payment.domain.Payment;
 import org.server.rsaga.payment.domain.Wallet;
 import org.server.rsaga.payment.domain.constant.PaymentStatus;
-import org.server.rsaga.common.domain.constant.PaymentType;
 import org.server.rsaga.payment.infra.repository.PaymentCustomRepository;
 import org.server.rsaga.payment.infra.repository.PaymentJpaRepository;
 import org.server.rsaga.payment.infra.repository.WalletCustomRepository;
@@ -221,7 +220,7 @@ public class PaymentMessageEventService {
 
     private void saveData(Map<Long, Wallet> walletMapByUserId, Map<Long, Payment> paymentMapByReservationId) {
         walletJpaRepository.saveAll(walletMapByUserId.values());
-        paymentJpaRepository.saveAll(paymentMapByReservationId.values());
+        paymentCustomRepository.batchSave(paymentMapByReservationId.values());
     }
 
     /**

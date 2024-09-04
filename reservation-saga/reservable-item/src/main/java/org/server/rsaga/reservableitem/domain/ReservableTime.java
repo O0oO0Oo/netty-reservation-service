@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.server.rsaga.common.domain.BaseTime;
 
 import java.util.Date;
 
@@ -27,6 +28,9 @@ public class ReservableTime {
     private ReservableItem reservableItem;
 
     private boolean isTimeAvailable;
+
+    @Embedded
+    private BaseTime baseTime;
 
     public ReservableTime(
             final Date time,

@@ -1,9 +1,11 @@
 package org.server.rsaga.payment.domain;
 
+import io.hypersistence.tsid.TSID;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.server.rsaga.common.domain.BaseTime;
 import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.common.domain.Money;
 import org.server.rsaga.payment.domain.constant.PaymentStatus;
@@ -12,9 +14,14 @@ import org.server.rsaga.common.domain.constant.PaymentType;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "payment", indexes = {
+        @Index(name = "idx_reservation_id", columnList = "reservation_id")
+})
 public class Payment {
+    /**
+     * TSID 사용
+     */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "payment_record_id", nullable = false)
     private Long id;
 
@@ -37,12 +44,17 @@ public class Payment {
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
 
+    @Embedded
+    private BaseTime baseTime;
+
     public Payment(
             final ForeignKey userId,
             final ForeignKey reservationId,
             final Money amount,
             final PaymentType paymentType,
             final PaymentStatus paymentStatus) {
+        this.id = TSID.fast().toLong();
+
         checkNull(userId);
         this.userId = userId;
 

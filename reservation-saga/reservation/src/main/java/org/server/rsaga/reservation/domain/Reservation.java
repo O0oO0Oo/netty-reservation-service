@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 import org.server.rsaga.common.domain.BaseTime;
 import org.server.rsaga.common.domain.ForeignKey;
 import org.server.rsaga.reservation.domain.constant.ReservationStatus;
@@ -12,6 +13,9 @@ import org.server.rsaga.reservation.domain.constant.ReservationStatus;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "reservation", indexes = {
+        @Index(name = "idx_user_reservable_item", columnList = "user_id, reservable_item_id")
+})
 public class Reservation {
 
     /**

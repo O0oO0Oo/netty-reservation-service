@@ -24,9 +24,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-// todo : 코드 리팩토링 필요
-
-// 리팩토링 필요
 @Service
 @RequiredArgsConstructor
 public class ReservationMessageEventService {
@@ -184,7 +181,8 @@ public class ReservationMessageEventService {
             );
         }
 
-        reservationJpaRepository.saveAll(reservations);
+        // batch insert, TSID 는 중복될 확률이 극히 적으므로, select 검증 x
+        reservationCustomRepository.batchSave(reservations);
 
         return responses;
     }
@@ -384,7 +382,6 @@ public class ReservationMessageEventService {
         List<Message<String, CreateReservationEvent>> responses = new ArrayList<>(messages.size());
 
         Set<Long> reservationIds = extractReservationIdFromCreateReservationFinalRequestMessage(messages);
-
         Map<Long, Reservation> reservationMap = findReservationMapByIds(reservationIds);
 
         for (Message<String, CreateReservationEvent> message : messages) {

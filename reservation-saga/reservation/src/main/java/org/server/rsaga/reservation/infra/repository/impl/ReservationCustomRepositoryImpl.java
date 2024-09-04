@@ -85,4 +85,12 @@ public class ReservationCustomRepositoryImpl implements ReservationCustomReposit
 
         return finalResults;
     }
+
+    @Override
+    public void batchSave(List<Reservation> reservations) {
+        for (Reservation reservation : reservations) {
+            entityManager.persist(reservation);
+        }
+        entityManager.flush();
+    }
 }
