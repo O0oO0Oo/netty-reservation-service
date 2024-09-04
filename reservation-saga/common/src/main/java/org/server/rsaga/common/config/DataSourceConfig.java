@@ -43,6 +43,8 @@ public class DataSourceConfig {
         private String url;
         private String username;
         private String password;
+        private String maximumPoolSize;
+        private String minimumIdle;
 
         DataSource getDataSource() {
             HikariDataSource dataSource = new HikariDataSource();
@@ -50,6 +52,8 @@ public class DataSourceConfig {
             dataSource.setJdbcUrl(this.url);
             dataSource.setUsername(this.username);
             dataSource.setPassword(this.password);
+            dataSource.setMaximumPoolSize(Integer.valueOf(this.maximumPoolSize));
+            dataSource.setMinimumIdle(Integer.valueOf(this.minimumIdle));
 
             return dataSource;
         }

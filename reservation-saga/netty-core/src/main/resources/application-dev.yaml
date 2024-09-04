@@ -37,8 +37,12 @@ mysql:
     url: jdbc:mysql://192.168.35.179:3306/reservation-saga
     username: master
     password: master
+    maximumPoolSize: 100
+    minimumIdle: 24
   slaves:
     - driverClassName: com.mysql.cj.jdbc.Driver
       url: jdbc:mysql://192.168.35.179:3406/reservation-saga
       username: slave
       password: slave
+      maximumPoolSize: 20
+      minimumIdle: 10
